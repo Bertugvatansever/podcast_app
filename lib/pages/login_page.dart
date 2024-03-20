@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:podcast_app/app_colors.dart';
+import 'package:podcast_app/controllers/user_controller.dart';
+import 'package:podcast_app/pages/register_page.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({super.key});
@@ -10,9 +13,13 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final UserController _userController = Get.find();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -52,6 +59,8 @@ class _LoginPageState extends State<LoginPage> {
                   borderRadius: BorderRadius.circular(20),
                   color: AppColor().textFieldColor),
               child: TextField(
+                controller: _emailController,
+                enableSuggestions: false,
                 decoration: InputDecoration(
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(horizontal: 10.w),
@@ -86,6 +95,8 @@ class _LoginPageState extends State<LoginPage> {
                   borderRadius: BorderRadius.circular(20),
                   color: AppColor().textFieldColor),
               child: TextField(
+                controller: _passwordController,
+                enableSuggestions: false,
                 decoration: InputDecoration(
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(horizontal: 10.w),
@@ -102,7 +113,10 @@ class _LoginPageState extends State<LoginPage> {
           ),
           Center(
               child: ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              _userController.signIn(
+                  _emailController.text, _passwordController.text);
+            },
             child: Text("Login", style: TextStyle(fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
                 minimumSize: Size(150.w, 50.h),
@@ -130,7 +144,9 @@ class _LoginPageState extends State<LoginPage> {
               Padding(
                 padding: EdgeInsets.only(right: 15.0.w),
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Get.to(() => RegisterPage());
+                  },
                   child: Text(
                     "Register",
                     style: TextStyle(fontWeight: FontWeight.bold),
