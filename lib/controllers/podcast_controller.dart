@@ -13,9 +13,9 @@ class PodcastController extends GetxController {
   Rx<bool> isPaused = false.obs;
   Rx<String> currentPodcastFilePath = "".obs;
   Rx<File> podcastImageFile = File("").obs;
-  Duration _recordTime = Duration.zero;
-  String _recordTimeString = "";
-  late Timer _timer;
+  Duration recordTime = Duration.zero;
+  String recordTimeString = "";
+  late Timer timer;
   final AudioPlayer audioPlayer = AudioPlayer();
   final record = AudioRecorder();
 
@@ -48,16 +48,7 @@ class PodcastController extends GetxController {
     }
   }
 
-  Future<void> continuePodcastRecord() async {
-    isPaused.value = !isPaused.value;
-    if ((await record.isPaused())) {
-      await record.resume();
-    } else {
-      await record.pause();
-    }
-  }
-
-  Future<void> pausePodcastRecord() async {
+  Future<void> pauseCheckRecord() async {
     isPaused.value = !isPaused.value;
     if ((await record.isPaused())) {
       await record.resume();
@@ -69,14 +60,21 @@ class PodcastController extends GetxController {
   Future<void> stopPodcastRecord() async {
     String? soundFilePath = await record.stop();
     print(soundFilePath);
-    _timer.cancel();
-    _recordTime = Duration.zero;
-    _recordTimeString = "";
+    timer.cancel();
+    recordTime = Duration.zero;
+    recordTimeString = "";
 
     isRecorded.value = !isRecorded.value;
 
     audioPlayer.setFilePath(soundFilePath!);
 
+    Get.back();
+  }
+
+  Future<void> deletePodcastRecord() async {
+    await record.dispose();
+    isRecorded.value = false;
+    currentPodcastFilePath.value = "";
     Get.back();
   }
 

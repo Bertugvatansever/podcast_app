@@ -297,10 +297,8 @@ class _PodcastAddState extends State<PodcastAdd>
                                         total:
                                             snapshotDuration.data ?? Duration(),
                                         onSeek: (duration) {
-                                          print(
-                                            _podcastController
-                                                .audioPlayer.duration,
-                                          );
+                                          _podcastController.audioPlayer
+                                              .seek(duration);
                                         },
                                       );
                                     });
@@ -324,7 +322,6 @@ class _PodcastAddState extends State<PodcastAdd>
                               semanticLabel: 'Show menu',
                             ),
                             onPressed: () {
-                              //ANIMATION CONTROLLER ATILABILIR
                               if (_podcastController.audioPlayer.playing) {
                                 _animationController.reverse();
                                 _podcastController.audioPlayer.pause();

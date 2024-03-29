@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -7,11 +6,9 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:lottie/lottie.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:podcast_app/app_colors.dart';
 import 'package:podcast_app/controllers/podcast_controller.dart';
 import 'package:podcast_app/controllers/user_controller.dart';
-import 'package:record/record.dart';
 
 class SoundRecordWidget extends StatefulWidget {
   const SoundRecordWidget({super.key});
@@ -23,10 +20,6 @@ class SoundRecordWidget extends StatefulWidget {
 class _SoundRecordWidgetState extends State<SoundRecordWidget> {
   UserController _userController = Get.find();
   PodcastController _podcastController = Get.find();
-  Duration _recordTime = Duration.zero;
-  String _recordTimeString = "";
-  late Timer _timer;
-  final record = AudioRecorder();
 
   @override
   Widget build(BuildContext context) {
@@ -71,10 +64,7 @@ class _SoundRecordWidgetState extends State<SoundRecordWidget> {
                 IconButton(
                     color: Colors.white,
                     onPressed: () async {
-                      await record.dispose();
-                      _podcastController.isRecorded.value = false;
-                      _podcastController.currentPodcastFilePath.value = "";
-                      Get.back();
+                      _podcastController.deletePodcastRecord();
                     },
                     icon: Icon(Icons.close))
               ],
@@ -103,7 +93,7 @@ class _SoundRecordWidgetState extends State<SoundRecordWidget> {
                         height: 30.h,
                       ),
                       Text(
-                        _recordTimeString,
+                        _podcastController.recordTimeString,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 25.sp,
@@ -168,13 +158,7 @@ class _SoundRecordWidgetState extends State<SoundRecordWidget> {
                                         color: Colors.black,
                                       ),
                                       onPressed: () async {
-                                        _podcastController.isPaused.value =
-                                            !_podcastController.isPaused.value;
-                                        if ((await record.isPaused())) {
-                                          await record.resume();
-                                        } else {
-                                          await record.pause();
-                                        }
+                                        _podcastController.pauseCheckRecord();
                                       },
                                     )
                                   : IconButton(
@@ -184,13 +168,7 @@ class _SoundRecordWidgetState extends State<SoundRecordWidget> {
                                         color: Colors.black,
                                       ),
                                       onPressed: () async {
-                                        _podcastController.isPaused.value =
-                                            !_podcastController.isPaused.value;
-                                        if ((await record.isPaused())) {
-                                          await record.resume();
-                                        } else {
-                                          await record.pause();
-                                        }
+                                        _podcastController.pauseCheckRecord();
                                       },
                                     )),
                         ),
@@ -228,18 +206,7 @@ class _SoundRecordWidgetState extends State<SoundRecordWidget> {
                                 color: Colors.black,
                               ),
                               onPressed: () async {
-                                String? soundFilePath = await record.stop();
-                                _timer.cancel();
-                                _recordTime = Duration.zero;
-                                _recordTimeString = "";
-
-                                _podcastController.isRecorded.value =
-                                    !_podcastController.isRecorded.value;
-
-                                _podcastController.audioPlayer
-                                    .setFilePath(soundFilePath!);
-
-                                Get.back();
+                                _podcastController.stopPodcastRecord();
                               },
                             ),
                           ),
@@ -284,28 +251,9 @@ class _SoundRecordWidgetState extends State<SoundRecordWidget> {
                               ),
                               onPressed: () async {
                                 if (!_podcastController.isRecorded.value) {
-                                  if (await record.hasPermission()) {
-                                    Directory? directory =
-                                        await getExternalStorageDirectory();
-                                    String path = directory!.path;
-
-                                    String soundFilePath =
-                                        '$path/${DateTime.now().millisecondsSinceEpoch}.m4a';
-                                    print(soundFilePath);
-                                    // Start recording to file
-                                    await record.start(const RecordConfig(),
-                                        path: soundFilePath);
-
-                                    _podcastController.currentPodcastFilePath
-                                        .value = soundFilePath;
-
-                                    // ... or to stream
-                                    calculateRecordTime();
-                                  }
+                                  calculateRecordTime();
+                                  _podcastController.startPodcastRecord();
                                 }
-
-                                _podcastController.isRecorded.value =
-                                    !_podcastController.isRecorded.value;
                               },
                             ),
                           ),
@@ -323,11 +271,13 @@ class _SoundRecordWidgetState extends State<SoundRecordWidget> {
   }
 
   void calculateRecordTime() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) async {
-      if (!(await record.isPaused())) {
+    _podcastController.timer =
+        Timer.periodic(Duration(seconds: 1), (timer) async {
+      if (!(await _podcastController.record.isPaused())) {
         setState(() {
-          _recordTime += Duration(seconds: 1);
-          _recordTimeString = formatTime(_recordTime);
+          _podcastController.recordTime += Duration(seconds: 1);
+          _podcastController.recordTimeString =
+              formatTime(_podcastController.recordTime);
         });
       }
     });
