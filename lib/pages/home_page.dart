@@ -85,6 +85,7 @@ class _HomePageState extends State<HomePage> {
                       SizedBox(
                         width: ScreenUtil().screenWidth,
                         height: 380.h,
+                        // PageView kaydırmalı sayfa geçişlerinde çok kullanışlı
                         child: PageView.builder(
                           scrollDirection: Axis.horizontal,
                           itemCount: 5,

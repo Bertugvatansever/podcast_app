@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -177,7 +179,9 @@ class _PodcastAddState extends State<PodcastAdd>
                   IconButton(
                     icon: Icon(Icons.upload),
                     color: AppColor().primaryColor,
-                    onPressed: () {},
+                    onPressed: () async {
+                      await _podcastController.selectPodcastPhoto();
+                    },
                   ),
                   SizedBox(
                     height: 15.h,
@@ -187,11 +191,28 @@ class _PodcastAddState extends State<PodcastAdd>
               SizedBox(
                 height: 15.h,
               ),
-              Container(
-                height: 200.h,
-                width: 300.h,
-                color: Colors.white,
-              ),
+              Obx(() => _podcastController
+                      .podcastImageFile.value.path.isNotEmpty
+                  ? Container(
+                      child: Image.file(
+                        File(_podcastController.podcastImageFile.value.path),
+                        fit: BoxFit.cover,
+                      ),
+                      height: 200.h,
+                      width: 300.h,
+                    )
+                  : Container(
+                      child: Center(
+                        child: Text(
+                          "Please select a Photo",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 18.sp),
+                        ),
+                      ),
+                      height: 200.h,
+                      width: 300.h,
+                      color: Colors.white,
+                    )),
               SizedBox(
                 height: 15.h,
               ),
@@ -213,7 +234,9 @@ class _PodcastAddState extends State<PodcastAdd>
                     width: 20.w,
                   ),
                   IconButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        await _podcastController.selectPodcastFile();
+                      },
                       icon: Icon(
                         Icons.upload,
                         color: AppColor().primaryColor,
@@ -301,6 +324,7 @@ class _PodcastAddState extends State<PodcastAdd>
                               semanticLabel: 'Show menu',
                             ),
                             onPressed: () {
+                              //ANIMATION CONTROLLER ATILABILIR
                               if (_podcastController.audioPlayer.playing) {
                                 _animationController.reverse();
                                 _podcastController.audioPlayer.pause();
