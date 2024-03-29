@@ -9,6 +9,7 @@ class UserController extends GetxController {
   Rx<User> currentUser =
       User(id: "", name: "", surName: "", photo: "", email: "", createdTime: 1)
           .obs;
+
   @override
   void onInit() {
     super.onInit();

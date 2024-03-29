@@ -237,7 +237,7 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                       SizedBox(
-                        height: 200.h,
+                        height: 250.h,
                         width: ScreenUtil().screenWidth,
                         child: Padding(
                           padding: EdgeInsets.only(left: 25.w),
@@ -261,6 +261,20 @@ class _HomePageState extends State<HomePage> {
                                         width: 165.w,
                                         height: 165.h,
                                       ),
+                                      SizedBox(height: 10.h),
+                                      Text(
+                                        "Antik Hikayeler",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20.sp,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Text(
+                                        "Bertuğ Vatansever",
+                                        style: TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: 14.sp),
+                                      )
                                     ],
                                   ),
                                   SizedBox(

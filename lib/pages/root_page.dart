@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:podcast_app/app_colors.dart';
 import 'package:podcast_app/pages/home_page.dart';
+import 'package:podcast_app/pages/podcast_add.dart';
 
 class RootPage extends StatefulWidget {
   const RootPage({super.key});
@@ -16,14 +17,14 @@ class _RootPageState extends State<RootPage> {
   List<Widget> screens = [
     HomePage(),
     Container(),
-    Container(),
+    PodcastAdd(),
     Container(),
     Container()
   ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor().backgroundColor,
+      // backgroundColor: AppColor().backgroundColor,
       bottomNavigationBar: Theme(
         data: ThemeData(splashColor: Colors.white12),
         child: BottomNavigationBar(
@@ -90,7 +91,31 @@ class _RootPageState extends State<RootPage> {
           },
         ),
       ),
-      body: screens[_currentIndex],
+      body: Container(
+          color: AppColor().backgroundColor,
+
+          //Gradient birden fazla renkli arka plan yapmaya yarıyor
+
+          // decoration: BoxDecoration(
+          //   gradient: LinearGradient(
+          //     begin: Alignment.topLeft,
+          //     end: Alignment.bottomRight,
+          //     colors: [
+          //       Colors.black,
+          //       Colors.black54,
+          //       Colors.black26,
+          //       Colors.black12,
+          //       Colors.green.withOpacity(0.3),
+          //       Colors.green.withOpacity(0.4),
+          //       Colors.green.withOpacity(0.5),
+          //       Colors.green.withOpacity(0.6),
+          //       Colors.green.withOpacity(0.7),
+          //       Colors.green.withOpacity(0.8),
+          //       Colors.green.withOpacity(0.9),
+          //     ],
+          //   ),
+          // ),
+          child: screens[_currentIndex]),
     );
   }
 }
