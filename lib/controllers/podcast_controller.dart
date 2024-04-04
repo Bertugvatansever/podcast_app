@@ -11,6 +11,7 @@ import 'package:record/record.dart';
 class PodcastController extends GetxController {
   Rx<bool> isRecorded = false.obs;
   Rx<bool> isPaused = false.obs;
+  // Rx<bool> startPage = true.obs;
   Rx<String> currentPodcastFilePath = "".obs;
   Rx<File> podcastImageFile = File("").obs;
   Duration recordTime = Duration.zero;

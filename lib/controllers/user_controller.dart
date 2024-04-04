@@ -33,9 +33,9 @@ class UserController extends GetxController {
 
   Future<void> getcurrentUser() async {
     String? id = _authService.getcurrentUserId();
-    print(id);
     if (id != null) {
       currentUser.value = await _userService.getcurrentUser(id);
+      print(currentUser.value.id);
     }
   }
 }

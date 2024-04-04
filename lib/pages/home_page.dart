@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:podcast_app/app_colors.dart';
+import 'package:podcast_app/controllers/user_controller.dart';
+import 'package:podcast_app/models/podcast.dart';
+import 'package:podcast_app/pages/podcast_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,6 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  UserController _userController = Get.find();
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -248,35 +253,52 @@ class _HomePageState extends State<HomePage> {
                             itemBuilder: (context, index) {
                               return Row(
                                 children: [
-                                  Column(
-                                    children: [
-                                      Container(
-                                        decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                                image: AssetImage(
-                                                    "assets/artemis.jpg"),
-                                                fit: BoxFit.cover),
-                                            color: Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(15)),
-                                        width: 165.w,
-                                        height: 165.h,
-                                      ),
-                                      SizedBox(height: 10.h),
-                                      Text(
-                                        "Antik Hikayeler",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20.sp,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(
-                                        "Bertuğ Vatansever",
-                                        style: TextStyle(
-                                            color: Colors.grey,
-                                            fontSize: 14.sp),
-                                      )
-                                    ],
+                                  InkWell(
+                                    onTap: () {
+                                      Get.to(() => PodcastPage(
+                                            podcast: Podcast(
+                                                id: "0",
+                                                name: "Antik Hikayeler",
+                                                category: ["Tarih", "Savaş"],
+                                                photo: "assets/artemis.jpg",
+                                                about: "about",
+                                                createdTime: DateTime.now(),
+                                                rating: "4.5",
+                                                user: _userController
+                                                    .currentUser.value,
+                                                comments: [],
+                                                episodes: []),
+                                          ));
+                                    },
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          decoration: BoxDecoration(
+                                              image: DecorationImage(
+                                                  image: AssetImage(
+                                                      "assets/artemis.jpg"),
+                                                  fit: BoxFit.cover),
+                                              borderRadius:
+                                                  BorderRadius.circular(15)),
+                                          width: 165.w,
+                                          height: 165.h,
+                                        ),
+                                        SizedBox(height: 10.h),
+                                        Text(
+                                          "Antik Hikayeler",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 20.sp,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(
+                                          "Bertuğ Vatansever",
+                                          style: TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 14.sp),
+                                        )
+                                      ],
+                                    ),
                                   ),
                                   SizedBox(
                                     width: 20.w,

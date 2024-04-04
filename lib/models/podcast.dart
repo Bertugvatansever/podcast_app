@@ -6,6 +6,7 @@ import 'dart:convert';
 
 import 'package:podcast_app/models/comment.dart';
 import 'package:podcast_app/models/episode.dart';
+import 'package:podcast_app/models/user.dart';
 
 Podcast podcastFromJson(String str) => Podcast.fromJson(json.decode(str));
 
@@ -19,7 +20,7 @@ class Podcast {
   String about;
   DateTime createdTime;
   String rating;
-  Map<String, dynamic> user;
+  User user;
   List<Comment> comments;
   List<Episode> episodes;
 

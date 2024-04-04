@@ -29,6 +29,10 @@ class UserService {
     // DocumentSnapshot bir adet belge çağırırken kullanılır.
     DocumentSnapshot documentSnapshot = await usersRef.doc(id).get();
     User user = User.fromJson(documentSnapshot.data() as Map<String, dynamic>);
+    print(user.name);
+    print(user.surName);
+    print(user.email);
+    print(user.id);
     return user;
   }
 }

@@ -3,7 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:podcast_app/app_colors.dart';
 import 'package:podcast_app/pages/home_page.dart';
-import 'package:podcast_app/pages/podcast_add.dart';
+import 'package:podcast_app/pages/my_profile_page.dart';
+import 'package:podcast_app/pages/podcast_add_page.dart';
 
 class RootPage extends StatefulWidget {
   const RootPage({super.key});
@@ -19,7 +20,7 @@ class _RootPageState extends State<RootPage> {
     Container(),
     PodcastAdd(),
     Container(),
-    Container()
+    MyProfilePage()
   ];
   @override
   Widget build(BuildContext context) {
