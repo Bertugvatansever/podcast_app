@@ -73,7 +73,7 @@ class _PodcastAddFirstWidgetState extends State<PodcastAddFirstWidget>
         Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: AppColor().textFieldColor),
+              color: AppColor.textFieldColor),
           child: TextField(
             style: TextStyle(color: Colors.white),
             controller: _podcastNameController,
@@ -83,7 +83,7 @@ class _PodcastAddFirstWidgetState extends State<PodcastAddFirstWidget>
                 contentPadding: EdgeInsets.symmetric(horizontal: 10.w),
                 hintText: "Your Podcast Name",
                 hintStyle: TextStyle(
-                    color: AppColor().textFieldTextcolor, fontSize: 18.sp)),
+                    color: AppColor.textFieldTextcolor, fontSize: 18.sp)),
             textAlign: TextAlign.center,
           ),
           width: 310.w,
@@ -122,7 +122,7 @@ class _PodcastAddFirstWidgetState extends State<PodcastAddFirstWidget>
         ),
         Card(
           margin: EdgeInsets.symmetric(horizontal: 25),
-          color: AppColor().textFieldColor,
+          color: AppColor.textFieldColor,
           child: TextField(
             enableSuggestions: false,
             style: TextStyle(color: Colors.white),
@@ -135,7 +135,7 @@ class _PodcastAddFirstWidgetState extends State<PodcastAddFirstWidget>
               border: InputBorder.none,
               hintText: "Write About Podcast...",
               hintStyle: TextStyle(
-                color: AppColor().textFieldTextcolor,
+                color: AppColor.textFieldTextcolor,
                 fontSize: 20.sp,
               ),
             ),
@@ -163,7 +163,7 @@ class _PodcastAddFirstWidgetState extends State<PodcastAddFirstWidget>
             ),
             IconButton(
               icon: Icon(Icons.upload),
-              color: AppColor().primaryColor,
+              color: AppColor.primaryColor,
               onPressed: () async {
                 await _podcastController.selectPodcastPhoto();
               },
@@ -220,7 +220,7 @@ class _PodcastAddFirstWidgetState extends State<PodcastAddFirstWidget>
             child: Text("Devam Et"),
             style: ElevatedButton.styleFrom(
                 disabledForegroundColor: Colors.black,
-                backgroundColor: AppColor().primaryColor,
+                backgroundColor: AppColor.primaryColor,
                 foregroundColor: Colors.white,
                 disabledBackgroundColor:
                     const Color.fromARGB(255, 180, 174, 174)),
@@ -242,7 +242,7 @@ class _PodcastAddFirstWidgetState extends State<PodcastAddFirstWidget>
                   : Colors.black),
       selected:
           _podcastController.selectedCategories[categories[index]] == true,
-      selectedColor: AppColor().primaryColor,
+      selectedColor: AppColor.primaryColor,
       onSelected: (value) {
         if (_podcastController.selectedCategories.keys
             .contains(categories[index])) {

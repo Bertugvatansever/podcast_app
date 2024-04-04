@@ -56,7 +56,7 @@ class _PodcastAddSecondWidgetState extends State<PodcastAddSecondWidget>
       Container(
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: AppColor().textFieldColor),
+            color: AppColor.textFieldColor),
         child: TextField(
           style: TextStyle(color: Colors.white),
           controller: _episodeNameController,
@@ -66,7 +66,7 @@ class _PodcastAddSecondWidgetState extends State<PodcastAddSecondWidget>
               contentPadding: EdgeInsets.symmetric(horizontal: 10.w),
               hintText: "Your Episode Name",
               hintStyle: TextStyle(
-                  color: AppColor().textFieldTextcolor, fontSize: 18.sp)),
+                  color: AppColor.textFieldTextcolor, fontSize: 18.sp)),
           textAlign: TextAlign.center,
         ),
         width: 310.w,
@@ -87,7 +87,7 @@ class _PodcastAddSecondWidgetState extends State<PodcastAddSecondWidget>
       ),
       Card(
         margin: EdgeInsets.symmetric(horizontal: 25),
-        color: AppColor().textFieldColor,
+        color: AppColor.textFieldColor,
         child: TextField(
           style: TextStyle(color: Colors.white),
           enableSuggestions: false,
@@ -100,7 +100,7 @@ class _PodcastAddSecondWidgetState extends State<PodcastAddSecondWidget>
             border: InputBorder.none,
             hintText: "Write About Episode...",
             hintStyle: TextStyle(
-              color: AppColor().textFieldTextcolor,
+              color: AppColor.textFieldTextcolor,
               fontSize: 20.sp,
             ),
           ),
@@ -128,7 +128,7 @@ class _PodcastAddSecondWidgetState extends State<PodcastAddSecondWidget>
           ),
           IconButton(
             icon: Icon(Icons.upload),
-            color: AppColor().primaryColor,
+            color: AppColor.primaryColor,
             onPressed: () async {
               await _podcastController.selectEpisodePhoto();
             },
@@ -188,7 +188,7 @@ class _PodcastAddSecondWidgetState extends State<PodcastAddSecondWidget>
               },
               icon: Icon(
                 Icons.upload,
-                color: AppColor().primaryColor,
+                color: AppColor.primaryColor,
               )),
           SizedBox(
             width: 20.w,
@@ -205,7 +205,7 @@ class _PodcastAddSecondWidgetState extends State<PodcastAddSecondWidget>
               },
               icon: Icon(
                 Icons.mic,
-                color: AppColor().primaryColor,
+                color: AppColor.primaryColor,
               ))
         ],
       ),
@@ -236,11 +236,10 @@ class _PodcastAddSecondWidgetState extends State<PodcastAddSecondWidget>
                                 builder: (context, snapshotDuration) {
                                   return ProgressBar(
                                     thumbGlowRadius: 15.w,
-                                    progressBarColor: AppColor().primaryColor,
+                                    progressBarColor: AppColor.primaryColor,
                                     thumbRadius: 6.w,
-                                    thumbColor: AppColor()
-                                        .primaryColor
-                                        .withOpacity(0.9),
+                                    thumbColor:
+                                        AppColor.primaryColor.withOpacity(0.9),
                                     progress:
                                         snapshotPosition.data ?? Duration(),
                                     total: snapshotDuration.data ?? Duration(),
@@ -255,7 +254,7 @@ class _PodcastAddSecondWidgetState extends State<PodcastAddSecondWidget>
                         icon: Icon(
                           Icons.cancel,
                           size: 40,
-                          color: AppColor().primaryColor,
+                          color: AppColor.primaryColor,
                         ),
                         onPressed: () {
                           _podcastController.currentPodcastFilePath.value = "";
@@ -296,9 +295,9 @@ class _PodcastAddSecondWidgetState extends State<PodcastAddSecondWidget>
                       onPressed: () {},
                       child: Text("Create Podcast"),
                       style: ElevatedButton.styleFrom(
-                          shadowColor: AppColor().primaryColor,
+                          shadowColor: AppColor.primaryColor,
                           elevation: 7,
-                          backgroundColor: AppColor().primaryColor,
+                          backgroundColor: AppColor.primaryColor,
                           foregroundColor: Colors.white),
                     ),
                   ),
@@ -329,7 +328,7 @@ class _PodcastAddSecondWidgetState extends State<PodcastAddSecondWidget>
             padding: EdgeInsets.only(bottom: 15.h),
             child: Text(
               "Go Back",
-              style: TextStyle(fontSize: 20.sp, color: AppColor().primaryColor),
+              style: TextStyle(fontSize: 20.sp, color: AppColor.primaryColor),
             ),
           ))
     ]);

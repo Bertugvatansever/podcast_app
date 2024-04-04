@@ -28,7 +28,7 @@ class _SoundRecordWidgetState extends State<SoundRecordWidget> {
         height: ScreenUtil().screenHeight / 2 + 17.h,
         width: ScreenUtil().screenWidth,
         decoration: BoxDecoration(
-            color: AppColor().backgroundColor,
+            color: AppColor.backgroundColor,
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(25), topRight: Radius.circular(25))),
         child: Column(
@@ -131,11 +131,11 @@ class _SoundRecordWidgetState extends State<SoundRecordWidget> {
                           shape: BoxShape.circle,
                           gradient: LinearGradient(
                             colors: [
-                              AppColor().primaryColor.withOpacity(0.9),
-                              AppColor().primaryColor.withOpacity(0.8),
-                              AppColor().primaryColor.withOpacity(0.7),
-                              AppColor().primaryColor.withOpacity(0.6),
-                              AppColor().primaryColor.withOpacity(0.5),
+                              AppColor.primaryColor.withOpacity(0.9),
+                              AppColor.primaryColor.withOpacity(0.8),
+                              AppColor.primaryColor.withOpacity(0.7),
+                              AppColor.primaryColor.withOpacity(0.6),
+                              AppColor.primaryColor.withOpacity(0.5),
                             ],
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
@@ -148,7 +148,7 @@ class _SoundRecordWidgetState extends State<SoundRecordWidget> {
                               height: 30.w,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: AppColor().primaryColor,
+                                color: AppColor.primaryColor,
                               ),
                               child: _podcastController.isPaused.value
                                   ? IconButton(
@@ -180,11 +180,11 @@ class _SoundRecordWidgetState extends State<SoundRecordWidget> {
                           shape: BoxShape.circle,
                           gradient: LinearGradient(
                             colors: [
-                              AppColor().primaryColor.withOpacity(0.9),
-                              AppColor().primaryColor.withOpacity(0.8),
-                              AppColor().primaryColor.withOpacity(0.7),
-                              AppColor().primaryColor.withOpacity(0.6),
-                              AppColor().primaryColor.withOpacity(0.5),
+                              AppColor.primaryColor.withOpacity(0.9),
+                              AppColor.primaryColor.withOpacity(0.8),
+                              AppColor.primaryColor.withOpacity(0.7),
+                              AppColor.primaryColor.withOpacity(0.6),
+                              AppColor.primaryColor.withOpacity(0.5),
                             ],
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
@@ -197,7 +197,7 @@ class _SoundRecordWidgetState extends State<SoundRecordWidget> {
                             height: 30.h,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: AppColor().primaryColor,
+                              color: AppColor.primaryColor,
                             ),
                             child: IconButton(
                               icon: Icon(
@@ -224,11 +224,11 @@ class _SoundRecordWidgetState extends State<SoundRecordWidget> {
                           shape: BoxShape.circle,
                           gradient: LinearGradient(
                             colors: [
-                              AppColor().primaryColor.withOpacity(0.9),
-                              AppColor().primaryColor.withOpacity(0.8),
-                              AppColor().primaryColor.withOpacity(0.7),
-                              AppColor().primaryColor.withOpacity(0.6),
-                              AppColor().primaryColor.withOpacity(0.5),
+                              AppColor.primaryColor.withOpacity(0.9),
+                              AppColor.primaryColor.withOpacity(0.8),
+                              AppColor.primaryColor.withOpacity(0.7),
+                              AppColor.primaryColor.withOpacity(0.6),
+                              AppColor.primaryColor.withOpacity(0.5),
                             ],
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
@@ -241,7 +241,7 @@ class _SoundRecordWidgetState extends State<SoundRecordWidget> {
                             height: 60.h,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: AppColor().primaryColor,
+                              color: AppColor.primaryColor,
                             ),
                             child: IconButton(
                               icon: Icon(

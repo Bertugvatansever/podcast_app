@@ -63,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
               child: Container(
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    color: AppColor().textFieldColor),
+                    color: AppColor.textFieldColor),
                 child: TextField(
                   style: TextStyle(color: Colors.white),
                   controller: _emailController,
@@ -73,8 +73,7 @@ class _LoginPageState extends State<LoginPage> {
                       contentPadding: EdgeInsets.symmetric(horizontal: 10.w),
                       hintText: "Your Email Adress",
                       hintStyle: TextStyle(
-                          color: AppColor().textFieldTextcolor,
-                          fontSize: 18.sp)),
+                          color: AppColor.textFieldTextcolor, fontSize: 18.sp)),
                 ),
                 width: 340.w,
                 height: 50.h,
@@ -101,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
               child: Container(
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    color: AppColor().textFieldColor),
+                    color: AppColor.textFieldColor),
                 child: TextField(
                   controller: _passwordController,
                   enableSuggestions: false,
@@ -110,8 +109,7 @@ class _LoginPageState extends State<LoginPage> {
                       contentPadding: EdgeInsets.symmetric(horizontal: 10.w),
                       hintText: "Your Password ",
                       hintStyle: TextStyle(
-                          color: AppColor().textFieldTextcolor,
-                          fontSize: 18.sp)),
+                          color: AppColor.textFieldTextcolor, fontSize: 18.sp)),
                 ),
                 width: 340.w,
                 height: 50.h,
@@ -130,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
                   Text("Login", style: TextStyle(fontWeight: FontWeight.bold)),
               style: ElevatedButton.styleFrom(
                   minimumSize: Size(150.w, 50.h),
-                  backgroundColor: AppColor().primaryColor,
+                  backgroundColor: AppColor.primaryColor,
                   foregroundColor: Colors.white),
             )),
             SizedBox(
@@ -147,7 +145,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: Text(
                       "Don't have the account ?",
                       style: TextStyle(
-                          color: AppColor().primaryColor, fontSize: 19.sp),
+                          color: AppColor.primaryColor, fontSize: 19.sp),
                     ),
                   ),
                 ),
@@ -163,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     style: ElevatedButton.styleFrom(
                         minimumSize: Size(100.w, 50.h),
-                        backgroundColor: AppColor().primaryColor,
+                        backgroundColor: AppColor.primaryColor,
                         foregroundColor: Colors.white),
                   ),
                 )

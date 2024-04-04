@@ -76,7 +76,7 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Container(
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    color: AppColor().textFieldColor),
+                    color: AppColor.textFieldColor),
                 child: TextField(
                   style: TextStyle(color: Colors.white),
                   controller: _emailController,
@@ -86,8 +86,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       contentPadding: EdgeInsets.symmetric(horizontal: 10.w),
                       hintText: "Your Email Adress",
                       hintStyle: TextStyle(
-                          color: AppColor().textFieldTextcolor,
-                          fontSize: 18.sp)),
+                          color: AppColor.textFieldTextcolor, fontSize: 18.sp)),
                 ),
                 width: 340.w,
                 height: 50.h,
@@ -114,7 +113,7 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Container(
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    color: AppColor().textFieldColor),
+                    color: AppColor.textFieldColor),
                 child: TextField(
                   controller: _passwordController,
                   enableSuggestions: false,
@@ -123,8 +122,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       contentPadding: EdgeInsets.symmetric(horizontal: 10.w),
                       hintText: "Your Password ",
                       hintStyle: TextStyle(
-                          color: AppColor().textFieldTextcolor,
-                          fontSize: 18.sp)),
+                          color: AppColor.textFieldTextcolor, fontSize: 18.sp)),
                 ),
                 width: 340.w,
                 height: 50.h,
@@ -151,7 +149,7 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Container(
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    color: AppColor().textFieldColor),
+                    color: AppColor.textFieldColor),
                 child: TextField(
                   controller: _nameController,
                   enableSuggestions: false,
@@ -160,8 +158,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       contentPadding: EdgeInsets.symmetric(horizontal: 10.w),
                       hintText: "Your Name",
                       hintStyle: TextStyle(
-                          color: AppColor().textFieldTextcolor,
-                          fontSize: 18.sp)),
+                          color: AppColor.textFieldTextcolor, fontSize: 18.sp)),
                 ),
                 width: 340.w,
                 height: 50.h,
@@ -188,7 +185,7 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Container(
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    color: AppColor().textFieldColor),
+                    color: AppColor.textFieldColor),
                 child: TextField(
                   controller: _surnameController,
                   enableSuggestions: false,
@@ -197,8 +194,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       contentPadding: EdgeInsets.symmetric(horizontal: 10.w),
                       hintText: "Your Surname",
                       hintStyle: TextStyle(
-                          color: AppColor().textFieldTextcolor,
-                          fontSize: 18.sp)),
+                          color: AppColor.textFieldTextcolor, fontSize: 18.sp)),
                 ),
                 width: 340.w,
                 height: 50.h,
@@ -223,7 +219,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   style: TextStyle(fontWeight: FontWeight.bold)),
               style: ElevatedButton.styleFrom(
                   minimumSize: Size(150.w, 50.h),
-                  backgroundColor: AppColor().primaryColor,
+                  backgroundColor: AppColor.primaryColor,
                   foregroundColor: Colors.white),
             )),
           ],

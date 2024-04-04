@@ -18,7 +18,7 @@ class _PodcastPageState extends State<PodcastPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor().backgroundColor,
+      backgroundColor: AppColor.backgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         leading: IconButton(
@@ -179,7 +179,7 @@ class _PodcastPageState extends State<PodcastPage> {
                       ),
                       style: ElevatedButton.styleFrom(
                           minimumSize: Size(180.w, 35.h),
-                          backgroundColor: AppColor().primaryColor,
+                          backgroundColor: AppColor.primaryColor,
                           foregroundColor: Colors.white),
                     ),
                     IconButton(
@@ -191,7 +191,7 @@ class _PodcastPageState extends State<PodcastPage> {
                         icon: Icon(
                           Icons.notifications,
                           color:
-                              isFollow ? AppColor().primaryColor : Colors.white,
+                              isFollow ? AppColor.primaryColor : Colors.white,
                           size: 30,
                         )),
                     IconButton(

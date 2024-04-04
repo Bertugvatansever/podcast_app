@@ -17,11 +17,11 @@ class _MyProfilePageState extends State<MyProfilePage> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColor().primaryColor.withOpacity(0.9),
-            AppColor().primaryColor.withOpacity(0.8),
-            AppColor().primaryColor.withOpacity(0.7),
-            AppColor().primaryColor.withOpacity(0.6),
-            AppColor().primaryColor.withOpacity(0.5),
+            AppColor.primaryColor.withOpacity(0.9),
+            AppColor.primaryColor.withOpacity(0.8),
+            AppColor.primaryColor.withOpacity(0.7),
+            AppColor.primaryColor.withOpacity(0.6),
+            AppColor.primaryColor.withOpacity(0.5),
             Colors.black.withOpacity(0.1),
             Colors.black.withOpacity(0.2),
             Colors.black.withOpacity(0.2),

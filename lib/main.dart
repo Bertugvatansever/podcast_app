@@ -28,10 +28,9 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Podcast Application',
         theme: ThemeData(
-            colorScheme:
-                ColorScheme.fromSeed(seedColor: AppColor().primaryColor),
+            colorScheme: ColorScheme.fromSeed(seedColor: AppColor.primaryColor),
             useMaterial3: true,
-            scaffoldBackgroundColor: AppColor().backgroundColor),
+            scaffoldBackgroundColor: AppColor.backgroundColor),
         home: SplashPage());
   }
 }

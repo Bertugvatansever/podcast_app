@@ -39,7 +39,7 @@ class _HomePageState extends State<HomePage> {
                     indicatorSize: TabBarIndicatorSize.label,
                     dividerColor: Colors.transparent,
                     labelColor: Colors.white,
-                    indicatorColor: AppColor().primaryColor,
+                    indicatorColor: AppColor.primaryColor,
                     unselectedLabelColor: Colors.grey,
                     labelPadding: const EdgeInsets.all(12.0),
                     tabs: [
@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () {},
                   icon: CircleAvatar(
                     radius: 16,
-                    backgroundColor: AppColor().primaryColor,
+                    backgroundColor: AppColor.primaryColor,
                     child: const Center(
                       child: Icon(
                         Icons.notifications,
@@ -183,7 +183,7 @@ class _HomePageState extends State<HomePage> {
                                         Spacer(),
                                         FaIcon(
                                           FontAwesomeIcons.eye,
-                                          color: AppColor().primaryColor,
+                                          color: AppColor.primaryColor,
                                         ),
                                         SizedBox(
                                           width: 5.w,
@@ -199,7 +199,7 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                         Icon(
                                           Icons.star,
-                                          color: AppColor().primaryColor,
+                                          color: AppColor.primaryColor,
                                           size: 30,
                                         ),
                                         Text(

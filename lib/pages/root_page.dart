@@ -35,7 +35,7 @@ class _RootPageState extends State<RootPage> {
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.black,
 
-          selectedItemColor: AppColor().primaryColor,
+          selectedItemColor: AppColor.primaryColor,
           unselectedItemColor: Colors.grey,
           items: [
             BottomNavigationBarItem(
@@ -58,10 +58,10 @@ class _RootPageState extends State<RootPage> {
                   height: 50.w,
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      color: AppColor().primaryColor,
+                      color: AppColor.primaryColor,
                       boxShadow: [
                         BoxShadow(
-                            color: AppColor().primaryColor,
+                            color: AppColor.primaryColor,
                             spreadRadius: 4,
                             blurRadius: 7),
                       ]),
@@ -93,7 +93,7 @@ class _RootPageState extends State<RootPage> {
         ),
       ),
       body: Container(
-          color: AppColor().backgroundColor,
+          color: AppColor.backgroundColor,
 
           //Gradient birden fazla renkli arka plan yapmaya yarıyor
 
