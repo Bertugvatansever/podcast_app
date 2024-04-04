@@ -11,7 +11,7 @@ class UserService {
       await userReference.doc(id).set({
         "id": id,
         "email": email,
-        " name": name,
+        "name": name,
         "surname": surName,
         "photo": "",
         "createdtime": DateTime.now().millisecondsSinceEpoch

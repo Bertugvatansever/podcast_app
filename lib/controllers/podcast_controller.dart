@@ -11,9 +11,16 @@ import 'package:record/record.dart';
 class PodcastController extends GetxController {
   Rx<bool> isRecorded = false.obs;
   Rx<bool> isPaused = false.obs;
-  // Rx<bool> startPage = true.obs;
+  Rx<bool> startPage = true.obs;
+  Rx<bool> isButtonActive = false.obs;
   Rx<String> currentPodcastFilePath = "".obs;
+  Rx<String> podcastName = "".obs;
+  RxMap<String, bool> selectedCategories = <String, bool>{}.obs;
+  Rx<String> podcastAbout = "".obs;
+  Rx<String> episodeName = "".obs;
+  Rx<String> episodeAbout = "".obs;
   Rx<File> podcastImageFile = File("").obs;
+  Rx<File> podcastEpisodeImageFile = File("").obs;
   Duration recordTime = Duration.zero;
   String recordTimeString = "";
   late Timer timer;
@@ -26,6 +33,19 @@ class PodcastController extends GetxController {
     if (pickedFile != null) {
       try {
         podcastImageFile.value = File(pickedFile.path);
+        print(podcastImageFile.value);
+      } catch (e) {
+        print(e.toString());
+      }
+    }
+  }
+
+  Future<void> selectEpisodePhoto() async {
+    var pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    print(pickedFile!.path.toString());
+    if (pickedFile != null) {
+      try {
+        podcastEpisodeImageFile.value = File(pickedFile.path);
         print(podcastImageFile.value);
       } catch (e) {
         print(e.toString());

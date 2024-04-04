@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,20 +9,21 @@ import 'package:podcast_app/app_colors.dart';
 import 'package:podcast_app/controllers/podcast_controller.dart';
 import 'package:podcast_app/widgets/sound_record.dart';
 
-class PodcastSecondPage extends StatefulWidget {
-  const PodcastSecondPage({super.key});
+class PodcastAddSecondWidget extends StatefulWidget {
+  const PodcastAddSecondWidget({super.key});
 
   @override
-  State<PodcastSecondPage> createState() => _PodcastSecondPageState();
+  State<PodcastAddSecondWidget> createState() => _PodcastAddSecondWidgetState();
 }
 
-class _PodcastSecondPageState extends State<PodcastSecondPage>
+class _PodcastAddSecondWidgetState extends State<PodcastAddSecondWidget>
     with SingleTickerProviderStateMixin {
-  bool secondPage = true;
   late AnimationController _animationController;
   late Animation<double> animation;
   PodcastController _podcastController = Get.find();
-  TextEditingController _episodeController = TextEditingController();
+  TextEditingController _episodeNameController = TextEditingController();
+  TextEditingController _episodeAboutController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -30,6 +33,8 @@ class _PodcastSecondPageState extends State<PodcastSecondPage>
     );
     animation =
         Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
+    _episodeNameController.text = _podcastController.episodeName.value;
+    _episodeAboutController.text = _podcastController.episodeAbout.value;
   }
 
   @override
@@ -54,7 +59,7 @@ class _PodcastSecondPageState extends State<PodcastSecondPage>
             color: AppColor().textFieldColor),
         child: TextField(
           style: TextStyle(color: Colors.white),
-          controller: _episodeController,
+          controller: _episodeNameController,
           enableSuggestions: false,
           decoration: InputDecoration(
               border: InputBorder.none,
@@ -84,6 +89,9 @@ class _PodcastSecondPageState extends State<PodcastSecondPage>
         margin: EdgeInsets.symmetric(horizontal: 25),
         color: AppColor().textFieldColor,
         child: TextField(
+          style: TextStyle(color: Colors.white),
+          enableSuggestions: false,
+          controller: _episodeAboutController,
           minLines: 1,
           maxLines: 10,
           decoration: InputDecoration(
@@ -98,6 +106,62 @@ class _PodcastSecondPageState extends State<PodcastSecondPage>
           ),
         ),
       ),
+      SizedBox(
+        height: 15.h,
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(left: 60.w),
+            child: Text(
+              "Episode Image",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20.sp,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          SizedBox(
+            width: 20.w,
+          ),
+          IconButton(
+            icon: Icon(Icons.upload),
+            color: AppColor().primaryColor,
+            onPressed: () async {
+              await _podcastController.selectEpisodePhoto();
+            },
+          ),
+          SizedBox(
+            height: 15.h,
+          ),
+        ],
+      ),
+      SizedBox(
+        height: 15.h,
+      ),
+      Obx(() => _podcastController.podcastEpisodeImageFile.value.path.isNotEmpty
+          ? Container(
+              child: Image.file(
+                File(_podcastController.podcastEpisodeImageFile.value.path),
+                fit: BoxFit.cover,
+              ),
+              height: 200.h,
+              width: 300.h,
+            )
+          : Container(
+              child: Center(
+                child: Text(
+                  "Please select a Photo",
+                  style:
+                      TextStyle(fontWeight: FontWeight.w600, fontSize: 18.sp),
+                ),
+              ),
+              height: 200.h,
+              width: 300.h,
+              color: Colors.white,
+            )),
       SizedBox(
         height: 15.h,
       ),
@@ -227,11 +291,13 @@ class _PodcastSecondPageState extends State<PodcastSecondPage>
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.only(bottom: 25.h, top: 15.h),
+                    padding: EdgeInsets.only(bottom: 5.h, top: 21.h),
                     child: ElevatedButton(
                       onPressed: () {},
                       child: Text("Create Podcast"),
                       style: ElevatedButton.styleFrom(
+                          shadowColor: AppColor().primaryColor,
+                          elevation: 7,
                           backgroundColor: AppColor().primaryColor,
                           foregroundColor: Colors.white),
                     ),
@@ -252,6 +318,20 @@ class _PodcastSecondPageState extends State<PodcastSecondPage>
                 ),
               ),
       ),
+      TextButton(
+          onPressed: () {
+            _podcastController.startPage.value = true;
+            _podcastController.episodeName.value = _episodeNameController.text;
+            _podcastController.episodeAbout.value =
+                _episodeAboutController.text;
+          },
+          child: Padding(
+            padding: EdgeInsets.only(bottom: 15.h),
+            child: Text(
+              "Go Back",
+              style: TextStyle(fontSize: 20.sp, color: AppColor().primaryColor),
+            ),
+          ))
     ]);
   }
 }

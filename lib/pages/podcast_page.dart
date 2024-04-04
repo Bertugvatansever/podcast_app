@@ -89,7 +89,7 @@ class _PodcastPageState extends State<PodcastPage> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(
-                              widget.podcast.user.surName!,
+                              widget.podcast.user.name!,
                               style: TextStyle(
                                   color: Colors.white, fontSize: 17.sp),
                             ),
