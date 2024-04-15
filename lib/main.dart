@@ -8,6 +8,7 @@ import 'package:podcast_app/controllers/user_controller.dart';
 import 'package:podcast_app/firebase_options.dart';
 import 'package:podcast_app/pages/splash_page.dart';
 
+final navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
     ScreenUtil.init(context,
         designSize: const Size(392.72727272727275, 783.2727272727273));
     return GetMaterialApp(
+        navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         title: 'Podcast Application',
         theme: ThemeData(

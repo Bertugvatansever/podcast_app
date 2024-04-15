@@ -31,7 +31,8 @@ class _PodcastAddFirstWidgetState extends State<PodcastAddFirstWidget>
     'Sağlık',
     'Eğitim',
     'Moda',
-    'Gastronomi',
+    ""
+        'Gastronomi',
     'Sanat',
     'Seyahat',
     'Müzik',
@@ -202,28 +203,32 @@ class _PodcastAddFirstWidgetState extends State<PodcastAddFirstWidget>
         ),
         Padding(
           padding: EdgeInsets.only(bottom: 13.h),
-          child: ElevatedButton(
-            onPressed: _podcastNameController.text.isNotEmpty &&
-                    _podcastAboutController.text.isNotEmpty &&
-                    _podcastController.selectedCategories.isNotEmpty &&
-                    _podcastController.podcastImageFile.value.path.isNotEmpty
-                ? () {
-                    _podcastController.podcastName.value =
-                        _podcastNameController.text;
+          child: Obx(
+            () => ElevatedButton(
+              onPressed: _podcastController.selectedCategories.isNotEmpty &&
+                      _podcastController
+                          .podcastImageFile.value.path.isNotEmpty &&
+                      _podcastNameController.text.isNotEmpty &&
+                      _podcastAboutController.text.isNotEmpty
+                  ? () {
+                      _podcastController.podcastName.value =
+                          _podcastNameController.text;
 
-                    _podcastController.podcastAbout.value =
-                        _podcastAboutController.text;
+                      _podcastController.podcastAbout.value =
+                          _podcastAboutController.text;
 
-                    _podcastController.startPage.value = false;
-                  }
-                : null,
-            child: Text("Devam Et"),
-            style: ElevatedButton.styleFrom(
-                disabledForegroundColor: Colors.black,
-                backgroundColor: AppColor.primaryColor,
-                foregroundColor: Colors.white,
-                disabledBackgroundColor:
-                    const Color.fromARGB(255, 180, 174, 174)),
+                      _podcastController.startPage.value = false;
+                    }
+                  : null,
+              child: Text("Devam Et"),
+              style: ElevatedButton.styleFrom(
+                  minimumSize: Size(200.w, 40.h),
+                  disabledForegroundColor: Colors.black,
+                  backgroundColor: AppColor.primaryColor,
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor:
+                      const Color.fromARGB(255, 180, 174, 174)),
+            ),
           ),
         ),
       ]),

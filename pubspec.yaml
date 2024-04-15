@@ -30,6 +30,9 @@ dependencies:
   just_audio: ^0.9.36
   image_picker: ^1.0.7
   file_picker: ^8.0.0+1
+  firebase_storage: ^11.7.1
+  awesome_dialog: ^3.2.0
+
 
 dev_dependencies:
   flutter_test:

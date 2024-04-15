@@ -1,14 +1,16 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:podcast_app/models/user.dart';
+import 'package:podcast_app/services/podcast_services.dart';
 import 'package:record/record.dart';
 
 class PodcastController extends GetxController {
+  PodcastService _podcastService = PodcastService();
   Rx<bool> isRecorded = false.obs;
   Rx<bool> isPaused = false.obs;
   Rx<bool> startPage = true.obs;
@@ -26,7 +28,6 @@ class PodcastController extends GetxController {
   late Timer timer;
   final AudioPlayer audioPlayer = AudioPlayer();
   final record = AudioRecorder();
-
   Future<void> selectPodcastPhoto() async {
     var pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     print(pickedFile!.path.toString());
@@ -111,5 +112,24 @@ class PodcastController extends GetxController {
         audioPlayer.setFilePath(currentPodcastFilePath.value);
       } else {}
     } catch (e) {}
+  }
+
+  Future<bool> uploadPodcast(String podcastName, String podcastAbout,
+      User podcastOwner, String episodeName) async {
+    String? imagePath = await _podcastService.uploadPodcastImage(
+        podcastName, podcastImageFile.value);
+    print(imagePath);
+    String? episodePath = await _podcastService.uploadPodcastFile(
+        podcastName, File(currentPodcastFilePath.value));
+    print(episodePath);
+    bool confirm = await _podcastService.uploadPodcast(
+        podcastName,
+        podcastAbout,
+        imagePath,
+        selectedCategories,
+        podcastOwner,
+        episodePath,
+        episodeName);
+    return confirm;
   }
 }
