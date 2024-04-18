@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:podcast_app/models/episode.dart';
+import 'package:podcast_app/models/podcast.dart';
 import 'package:podcast_app/models/user.dart';
 import 'package:podcast_app/services/podcast_services.dart';
 import 'package:record/record.dart';
@@ -21,8 +23,12 @@ class PodcastController extends GetxController {
   Rx<String> podcastAbout = "".obs;
   Rx<String> episodeName = "".obs;
   Rx<String> episodeAbout = "".obs;
+  RxList<Podcast> continuePodcastList = <Podcast>[].obs;
+  RxList<Episode> continuePodcastEpisodeList = <Episode>[].obs;
+
   Rx<File> podcastImageFile = File("").obs;
   Rx<File> podcastEpisodeImageFile = File("").obs;
+
   Duration recordTime = Duration.zero;
   String recordTimeString = "";
   late Timer timer;
@@ -115,10 +121,12 @@ class PodcastController extends GetxController {
   }
 
   Future<bool> uploadPodcast(String podcastName, String podcastAbout,
-      User podcastOwner, String episodeName) async {
+      User podcastOwner, String episodeName, String episodeAbout) async {
     String? imagePath = await _podcastService.uploadPodcastImage(
         podcastName, podcastImageFile.value);
     print(imagePath);
+    String? episodeImagePath = await _podcastService.uploadPodcastImage(
+        podcastName, podcastEpisodeImageFile.value);
     String? episodePath = await _podcastService.uploadPodcastFile(
         podcastName, File(currentPodcastFilePath.value));
     print(episodePath);
@@ -129,7 +137,23 @@ class PodcastController extends GetxController {
         selectedCategories,
         podcastOwner,
         episodePath,
-        episodeName);
+        episodeImagePath,
+        episodeName,
+        episodeAbout);
     return confirm;
+  }
+
+  Future<void> getContinueListeningPodcast() async {
+    List<Podcast>? _continuePodcasts = [];
+    _continuePodcasts = await _podcastService.getContinueListeningPodcast();
+    continuePodcastList.addAll(_continuePodcasts!);
+  }
+
+  Future<void> getContinueListeningPodcastEpisodes(String podcastId) async {
+    continuePodcastEpisodeList.clear();
+    List<Episode> episodesToAdd =
+        await _podcastService.getContinueListeningPodcastEpisodes(podcastId);
+    continuePodcastEpisodeList.addAll(episodesToAdd);
+    print(continuePodcastEpisodeList.length);
   }
 }

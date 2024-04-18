@@ -3,13 +3,14 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:podcast_app/models/episode.dart';
+import 'package:podcast_app/models/podcast.dart';
 import 'package:podcast_app/models/user.dart';
 
 class PodcastService {
   Future<String?> uploadPodcastFile(
       String podcastName, File podcastFile) async {
     try {
-      //replaceall boşlukları kaldırır.
       final ref = FirebaseStorage.instance.ref().child('podcast_sounds').child(
           '$podcastName${DateTime.now().millisecondsSinceEpoch}.mp3'.trim());
       // dosyanın tipini de özel olarak belirttik.
@@ -39,11 +40,13 @@ class PodcastService {
   Future<bool> uploadPodcast(
       String podcastName,
       String podcastAbout,
-      String? imagePath,
+      String? podcastImagePath,
       Map<String, bool> categoriesMap,
       User podcastOwner,
       String? episodePath,
-      String episodeName) async {
+      String? episodeImagePath,
+      String episodeName,
+      String episodeAbout) async {
     try {
       CollectionReference collectionReference =
           FirebaseFirestore.instance.collection('podcasts');
@@ -52,14 +55,14 @@ class PodcastService {
         'podcastname': podcastName,
         'podcastcategory': categoriesMap.keys,
         'podcastabout': podcastAbout,
-        'podcastimage': imagePath,
+        'podcastimage': podcastImagePath,
         'podcastid': podcastId,
         'podcastuser': {
-          'userid': podcastOwner.id,
-          'username': podcastOwner.name,
-          'usersurname': podcastOwner.surName,
+          'id': podcastOwner.id,
+          'name': podcastOwner.name,
+          'surname': podcastOwner.surName,
         },
-        'podcastcreatedtime': DateTime.now()
+        'podcastcreatedtime': DateTime.now().millisecondsSinceEpoch
       });
       String episodeId =
           collectionReference.doc(podcastId).collection('episodes').doc().id;
@@ -68,16 +71,59 @@ class PodcastService {
           .collection('episodes')
           .doc(episodeId)
           .set({
-        'episodecreatedtime': DateTime.now(),
+        'episodecreatedtime': DateTime.now().millisecondsSinceEpoch,
         'episodefile': episodePath,
+        'episodeimage': episodeImagePath,
         'episodeid': episodeId,
         'episodename': episodeName,
-        'podcastname': podcastName
+        'podcastname': podcastName,
+        'episodeAbout': episodeAbout
       });
       return true;
     } catch (e) {
       print("hata:" + e.toString());
       return false;
     }
+  }
+
+  Future<List<Podcast>?> getContinueListeningPodcast() async {
+    List<Podcast> listeningPodcasts = [];
+    // try {
+    CollectionReference collectionReference =
+        FirebaseFirestore.instance.collection("podcasts");
+    QuerySnapshot querySnapshot = await collectionReference.get();
+    querySnapshot.docs.forEach((element) {
+      Podcast podcast =
+          Podcast.fromJson(element.data() as Map<String, dynamic>);
+      listeningPodcasts.add(podcast);
+    });
+
+    return listeningPodcasts;
+    // } catch (e) {
+    //   print(e.toString());
+    // }
+  }
+
+  Future<List<Episode>> getContinueListeningPodcastEpisodes(
+      String podcastId) async {
+    List<Episode> episodeList = [];
+    CollectionReference collectionReference = FirebaseFirestore.instance
+        .collection("podcasts")
+        .doc(podcastId)
+        .collection("episodes");
+    QuerySnapshot querySnapshot = await collectionReference.get();
+    querySnapshot.docs.forEach((element) {
+      Episode episode =
+          Episode.fromJson(element.data() as Map<String, dynamic>);
+      print(episode.createdTime);
+      print(episode.episodeImage);
+      print(episode.file);
+      print(episode.id);
+      print(episode.name);
+      print(episode.podcastName);
+
+      episodeList.add(episode);
+    });
+    return episodeList;
   }
 }

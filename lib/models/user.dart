@@ -15,7 +15,7 @@ class User {
   String? surName;
   String? photo;
   String? email;
-  int createdTime;
+  int? createdTime;
 
   User({
     required this.id,

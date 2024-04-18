@@ -49,9 +49,13 @@ class _PodcastAddSecondWidgetState extends State<PodcastAddSecondWidget>
             width: ScreenUtil().screenWidth,
             height: ScreenUtil().screenHeight,
             child: Center(
-              child: CircularProgressIndicator(
-                color: AppColor.primaryColor,
-                strokeWidth: 5.w,
+              child: SizedBox(
+                height: 80.h,
+                width: 80.h,
+                child: CircularProgressIndicator(
+                  color: AppColor.primaryColor,
+                  strokeWidth: 5.w,
+                ),
               ),
             ),
           )
@@ -330,7 +334,8 @@ class _PodcastAddSecondWidgetState extends State<PodcastAddSecondWidget>
                                       _podcastController.podcastName.value,
                                       _podcastController.podcastAbout.value,
                                       _userController.currentUser.value,
-                                      _podcastController.episodeName.value);
+                                      _podcastController.episodeName.value,
+                                      _podcastController.episodeAbout.value);
                               setState(() {
                                 isUploading = false;
                               });

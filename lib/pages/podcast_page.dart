@@ -4,7 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:podcast_app/app_colors.dart';
+import 'package:podcast_app/controllers/podcast_controller.dart';
 import 'package:podcast_app/models/podcast.dart';
+import 'package:podcast_app/pages/podcast_listen_page.dart';
 
 class PodcastPage extends StatefulWidget {
   const PodcastPage({super.key, required this.podcast});
@@ -15,6 +17,14 @@ class PodcastPage extends StatefulWidget {
 
 class _PodcastPageState extends State<PodcastPage> {
   bool isFollow = false;
+  PodcastController _podcastController = Get.find();
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _podcastController.getContinueListeningPodcastEpisodes(widget.podcast.id!);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,7 +60,7 @@ class _PodcastPageState extends State<PodcastPage> {
                           width: 170.w,
                           decoration: BoxDecoration(
                               image: DecorationImage(
-                                  image: AssetImage("assets/artemis.jpg"),
+                                  image: NetworkImage(widget.podcast.photo!),
                                   fit: BoxFit.cover),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(15))),
@@ -75,7 +85,7 @@ class _PodcastPageState extends State<PodcastPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.podcast.name,
+                          widget.podcast.name!,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 25.sp,
@@ -89,14 +99,14 @@ class _PodcastPageState extends State<PodcastPage> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(
-                              widget.podcast.user.name!,
+                              widget.podcast.user?.name ?? "",
                               style: TextStyle(
                                   color: Colors.white, fontSize: 17.sp),
                             ),
                             SizedBox(
                               width: 5.w,
                             ),
-                            Text(widget.podcast.user.surName!,
+                            Text(widget.podcast.user?.surName ?? "",
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 17.sp)),
                           ],
@@ -111,31 +121,43 @@ class _PodcastPageState extends State<PodcastPage> {
                               width: 170.w,
                               child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
-                                itemCount: widget.podcast.category.length,
+                                itemCount:
+                                    (widget.podcast.category ?? []).length,
                                 itemBuilder: (BuildContext context, int index) {
                                   return Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       index ==
-                                              widget.podcast.category.length - 1
+                                              (widget.podcast.category ?? [])
+                                                      .length -
+                                                  1
                                           ? Text(
-                                              widget.podcast.category[index],
+                                              (widget.podcast.category ??
+                                                  [])[index],
                                               style: TextStyle(
                                                   color: Colors.grey.shade600,
                                                   fontSize: 17.sp),
                                             )
                                           : Text(
-                                              widget.podcast.category[index],
+                                              (widget.podcast.category ??
+                                                  [])[index],
                                               style: TextStyle(
                                                   color: Colors.grey.shade600,
                                                   fontSize: 17.sp),
                                             ),
-                                      Text(
-                                        ",",
-                                        style: TextStyle(
-                                            color: Colors.grey.shade600,
-                                            fontSize: 17.sp),
+                                      index ==
+                                              widget.podcast.category!.length -
+                                                  1
+                                          ? SizedBox()
+                                          : Text(
+                                              ",",
+                                              style: TextStyle(
+                                                  color: Colors.grey.shade600,
+                                                  fontSize: 17.sp),
+                                            ),
+                                      SizedBox(
+                                        width: 2.w,
                                       )
                                     ],
                                   );
@@ -157,7 +179,7 @@ class _PodcastPageState extends State<PodcastPage> {
                 child: Align(
                   alignment: Alignment.bottomLeft,
                   child: Text(
-                    "Lorem Ipsum, dizgi ve baskı endüstrisinde kullanılan mıgır metinlerdir. Lorem Ipsum, adı bilinmeyen bir matbaacının bir hurufat numune kitabı oluşturmak üzere bir yazı galerisini alarak karıştırdığı 1500'lerden beri endüstri standardı sahte metinler olarak kullanılmıştır. Beşyüz yıl boyunca varlığını sürdürmekle kalmamış, aynı zamanda pek değişmeden elektronik dizgiye de sıçramıştır. 1960'larda Lorem Ipsum pasajları da içeren Letraset yapraklarının yayınlanması ile ve yakın zamanda Aldus PageMaker gibi Lorem Ipsum sürümleri içeren masaüstü yayıncılık yazılımları ile popüler olmuştur.",
+                    widget.podcast.about!,
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
@@ -247,47 +269,62 @@ class _PodcastPageState extends State<PodcastPage> {
                 width: ScreenUtil().screenWidth,
                 height: 500.h,
                 child: ListView.builder(
-                  itemCount: 10,
+                  itemCount:
+                      _podcastController.continuePodcastEpisodeList.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return Padding(
-                      padding: EdgeInsets.only(left: 10.w, bottom: 10.h),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: 100.w,
-                            height: 100.h,
-                            decoration: BoxDecoration(
-                                image: DecorationImage(
-                                    image: AssetImage("assets/artemis.jpg"),
-                                    fit: BoxFit.cover),
-                                borderRadius: BorderRadius.circular(15)),
-                          ),
-                          Column(
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(top: 15.h, left: 15.w),
-                                child: Text(
-                                  "Spartanın cokus hikayesi",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18.sp,
-                                      fontWeight: FontWeight.bold),
+                    return InkWell(
+                      onTap: () {
+                        Get.to(() => PodcastListenPage(
+                            episode: _podcastController
+                                .continuePodcastEpisodeList[index]));
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 10.w, bottom: 10.h),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 100.w,
+                              height: 100.h,
+                              decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                      image: NetworkImage(_podcastController
+                                          .continuePodcastEpisodeList[index]
+                                          .episodeImage),
+                                      fit: BoxFit.cover),
+                                  borderRadius: BorderRadius.circular(15)),
+                            ),
+                            Column(
+                              children: [
+                                Padding(
+                                  padding:
+                                      EdgeInsets.only(top: 15.h, left: 15.w),
+                                  child: Text(
+                                    _podcastController
+                                        .continuePodcastEpisodeList[index]
+                                        .podcastName,
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18.sp,
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(top: 15.h, left: 15.w),
-                                child: Text(
-                                  "Spartanın cokus hikayesi",
-                                  style: TextStyle(
-                                      color: Colors.grey.shade600,
-                                      fontSize: 18.sp,
-                                      fontWeight: FontWeight.bold),
+                                Padding(
+                                  padding:
+                                      EdgeInsets.only(top: 15.h, left: 15.w),
+                                  child: Text(
+                                    _podcastController
+                                        .continuePodcastEpisodeList[index].name,
+                                    style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 18.sp,
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },

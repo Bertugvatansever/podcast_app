@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:podcast_app/app_colors.dart';
+import 'package:podcast_app/widgets/my_library.dart';
 
 class MyProfilePage extends StatefulWidget {
   const MyProfilePage({super.key});
@@ -140,7 +141,14 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   FontAwesomeIcons.bookOpen,
                   color: Colors.white,
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  showModalBottomSheet(
+                      isScrollControlled: true,
+                      context: context,
+                      builder: (BuildContext context) {
+                        return MyLibrary();
+                      });
+                },
               ),
               SizedBox(
                 width: 20.w,

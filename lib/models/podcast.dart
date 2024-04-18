@@ -3,26 +3,23 @@
 //     final Podcast = PodcastFromJson(jsonString);
 
 import 'dart:convert';
+import 'dart:ffi';
 
 import 'package:podcast_app/models/comment.dart';
 import 'package:podcast_app/models/episode.dart';
 import 'package:podcast_app/models/user.dart';
 
-Podcast podcastFromJson(String str) => Podcast.fromJson(json.decode(str));
-
-String podcastToJson(Podcast data) => json.encode(data.toJson());
-
 class Podcast {
-  String id;
-  String name;
-  List<String> category;
-  String photo;
-  String about;
-  DateTime createdTime;
-  String rating;
-  User user;
-  List<Comment> comments;
-  List<Episode> episodes;
+  String? id;
+  String? name;
+  List<String>? category;
+  String? photo;
+  String? about;
+  int? createdTime;
+  String? rating;
+  User? user;
+  List<Comment>? comments;
+  List<Episode>? episodes;
 
   Podcast(
       {required this.id,
@@ -37,16 +34,26 @@ class Podcast {
       required this.episodes});
 
   factory Podcast.fromJson(Map<String, dynamic> json) => Podcast(
-      id: json["podcastid"],
-      name: json["podcastname"],
-      category: json["podcastcategory"],
-      photo: json["podcastphoto"],
-      about: json["podcastabout"],
-      createdTime: json["podcastcreatedTime"],
-      rating: json["podcastrating"],
-      user: json["podcastuser"],
-      comments: json["podcastcomments"],
-      episodes: json["podcastepisodes"]);
+        id: json["podcastid"],
+        name: json["podcastname"],
+        category:
+            (json["podcastcategory"] as List).map((e) => e.toString()).toList(),
+        photo: json["podcastimage"],
+        about: json["podcastabout"],
+        createdTime: json["podcastcreatedtime"],
+        rating: json["podcastrating"],
+        user: User.fromJson(json["podcastuser"]),
+        comments: json["podcastcomments"] == null
+            ? []
+            : (json["podcastcomments"] as List)
+                .map((e) => Comment.fromJson(e.toJson()))
+                .toList(),
+        episodes: json["podcastepisodes"] == null
+            ? []
+            : (json["podcastepisodes"] as List)
+                .map((e) => Episode.fromJson(e.toJson()))
+                .toList(),
+      );
 
   Map<String, dynamic> toJson() => {
         "podcastid": id,
@@ -56,8 +63,8 @@ class Podcast {
         "podcastabout": about,
         "podcastcreatedTime": createdTime,
         "podcastrating": rating,
-        "podcastuser": user,
-        "podcastcomments": comments,
-        "podcastepisodes": episodes
+        "podcastuser": user?.toJson(),
+        "podcastcomments": comments?.map((e) => e.toJson()).toList(),
+        "podcastepisodes": episodes?.map((e) => e.toJson()).toList(),
       };
 }
