@@ -115,12 +115,6 @@ class PodcastService {
     querySnapshot.docs.forEach((element) {
       Episode episode =
           Episode.fromJson(element.data() as Map<String, dynamic>);
-      print(episode.createdTime);
-      print(episode.episodeImage);
-      print(episode.file);
-      print(episode.id);
-      print(episode.name);
-      print(episode.podcastName);
 
       episodeList.add(episode);
     });

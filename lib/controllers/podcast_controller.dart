@@ -10,6 +10,7 @@ import 'package:podcast_app/models/podcast.dart';
 import 'package:podcast_app/models/user.dart';
 import 'package:podcast_app/services/podcast_services.dart';
 import 'package:record/record.dart';
+import 'package:http/http.dart' as http;
 
 class PodcastController extends GetxController {
   PodcastService _podcastService = PodcastService();
@@ -17,6 +18,7 @@ class PodcastController extends GetxController {
   Rx<bool> isPaused = false.obs;
   Rx<bool> startPage = true.obs;
   Rx<bool> isButtonActive = false.obs;
+  Rx<bool> isDownloadedPodcast = false.obs;
   Rx<String> currentPodcastFilePath = "".obs;
   Rx<String> podcastName = "".obs;
   RxMap<String, bool> selectedCategories = <String, bool>{}.obs;
@@ -155,5 +157,24 @@ class PodcastController extends GetxController {
         await _podcastService.getContinueListeningPodcastEpisodes(podcastId);
     continuePodcastEpisodeList.addAll(episodesToAdd);
     print(continuePodcastEpisodeList.length);
+  }
+
+  Future<bool> downloadPodcastFile(var url, String fileName) async {
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final bytes = response.bodyBytes;
+      final directory = await getDownloadsDirectory();
+      final filePath =
+          '${directory!.path}/${fileName}.mp3'; // Kaydedilecek dosyanın yolunu belirle
+
+      print(filePath);
+      File file = File(filePath.trim());
+      await file.writeAsBytes(bytes); // Dosyayı cihaza kaydet
+      print("Dosya Başarıyla indirildi");
+      return true;
+    } else {
+      return false;
+    }
   }
 }

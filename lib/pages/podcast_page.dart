@@ -1,8 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:podcast_app/app_colors.dart';
 import 'package:podcast_app/controllers/podcast_controller.dart';
 import 'package:podcast_app/models/podcast.dart';
@@ -56,14 +58,30 @@ class _PodcastPageState extends State<PodcastPage> {
                       Padding(
                         padding: EdgeInsets.only(left: 16.w),
                         child: Container(
-                          height: 170.h,
                           width: 170.w,
+                          height: 170.h,
                           decoration: BoxDecoration(
-                              image: DecorationImage(
-                                  image: NetworkImage(widget.podcast.photo!),
-                                  fit: BoxFit.cover),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(15))),
+                              borderRadius: BorderRadius.circular(15),
+                              color: Colors.grey.shade900),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: Image.network(
+                              width: 170.w,
+                              height: 170.h,
+                              widget.podcast.photo!,
+                              fit: BoxFit.cover,
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                if (loadingProgress == null) {
+                                  return child; // Resim yüklendikten sonra gösterilecek widget
+                                } else {
+                                  return Center(
+                                      child:
+                                          CircularProgressIndicator()); // Yükleme esnasında gösterilecek widget
+                                }
+                              },
+                            ),
+                          ),
                         ),
                       ),
                       SizedBox(
@@ -84,32 +102,28 @@ class _PodcastPageState extends State<PodcastPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          widget.podcast.name!,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 25.sp,
-                            fontWeight: FontWeight.bold,
+                        SizedBox(
+                          width: 180.w,
+                          child: Text(
+                            widget.podcast.name!,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 25.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                         SizedBox(
-                          height: 3.h,
+                          height: 5.h,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.podcast.user?.name ?? "",
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 17.sp),
-                            ),
-                            SizedBox(
-                              width: 5.w,
-                            ),
-                            Text(widget.podcast.user?.surName ?? "",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 17.sp)),
-                          ],
+                        Text(
+                          '${widget.podcast.user?.name ?? ""}  ${widget.podcast.user?.surName}',
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                          style:
+                              TextStyle(color: Colors.white, fontSize: 17.sp),
                         ),
                         SizedBox(
                           height: 10.h,
@@ -265,69 +279,111 @@ class _PodcastPageState extends State<PodcastPage> {
               SizedBox(
                 height: 10.h,
               ),
-              SizedBox(
-                width: ScreenUtil().screenWidth,
-                height: 500.h,
-                child: ListView.builder(
-                  itemCount:
-                      _podcastController.continuePodcastEpisodeList.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return InkWell(
-                      onTap: () {
-                        Get.to(() => PodcastListenPage(
-                            episode: _podcastController
-                                .continuePodcastEpisodeList[index]));
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 10.w, bottom: 10.h),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 100.w,
-                              height: 100.h,
-                              decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                      image: NetworkImage(_podcastController
-                                          .continuePodcastEpisodeList[index]
-                                          .episodeImage),
-                                      fit: BoxFit.cover),
-                                  borderRadius: BorderRadius.circular(15)),
-                            ),
-                            Column(
-                              children: [
-                                Padding(
-                                  padding:
-                                      EdgeInsets.only(top: 15.h, left: 15.w),
-                                  child: Text(
+              Obx(
+                () => SizedBox(
+                  width: ScreenUtil().screenWidth,
+                  height: 500.h,
+                  child: ListView.builder(
+                    itemCount:
+                        _podcastController.continuePodcastEpisodeList.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return InkWell(
+                        onTap: () {
+                          print(_podcastController
+                              .continuePodcastEpisodeList[index].file);
+                          _podcastController.audioPlayer.setUrl(
+                              _podcastController
+                                  .continuePodcastEpisodeList[index].file);
+                          print(_podcastController.audioPlayer.duration);
+                          Get.to(() => PodcastListenPage(
+                              episode: _podcastController
+                                  .continuePodcastEpisodeList[index]));
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 10.w, bottom: 10.h),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 100.w,
+                                height: 100.h,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    color: Colors.grey.shade900),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: Image.network(
+                                    width: 100.w,
+                                    height: 100.h,
                                     _podcastController
                                         .continuePodcastEpisodeList[index]
-                                        .podcastName,
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18.sp,
-                                        fontWeight: FontWeight.bold),
+                                        .episodeImage,
+                                    fit: BoxFit.cover,
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
+                                      if (loadingProgress == null) {
+                                        return child; // Resim yüklendikten sonra gösterilecek widget
+                                      } else {
+                                        return Center(
+                                            child: CircularProgressIndicator(
+                                                color: AppColor
+                                                    .primaryColor)); // Yükleme esnasında gösterilecek widget
+                                      }
+                                    },
                                   ),
                                 ),
-                                Padding(
-                                  padding:
-                                      EdgeInsets.only(top: 15.h, left: 15.w),
-                                  child: Text(
-                                    _podcastController
-                                        .continuePodcastEpisodeList[index].name,
-                                    style: TextStyle(
-                                        color: Colors.grey.shade600,
-                                        fontSize: 18.sp,
-                                        fontWeight: FontWeight.bold),
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.only(top: 15.h, left: 15.w),
+                                    child: SizedBox(
+                                      width: 250.w,
+                                      child: Center(
+                                        child: Text(
+                                          _podcastController
+                                              .continuePodcastEpisodeList[index]
+                                              .podcastName,
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18.sp,
+                                              fontWeight: FontWeight.bold),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 2,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.only(top: 15.h, left: 15.w),
+                                    child: SizedBox(
+                                      width: 250.w,
+                                      child: Center(
+                                        child: Text(
+                                          _podcastController
+                                              .continuePodcastEpisodeList[index]
+                                              .name,
+                                          style: TextStyle(
+                                            color: Colors.grey.shade600,
+                                            fontSize: 18.sp,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
             ],

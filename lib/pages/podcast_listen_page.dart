@@ -1,4 +1,5 @@
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -6,7 +7,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:podcast_app/app_colors.dart';
+import 'package:podcast_app/controllers/podcast_controller.dart';
 import 'package:podcast_app/models/episode.dart';
 
 class PodcastListenPage extends StatefulWidget {
@@ -20,6 +23,8 @@ class _PodcastListenPageState extends State<PodcastListenPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> animation;
+  PodcastController _podcastController = Get.find();
+  bool confirm = false;
   @override
   void initState() {
     // TODO: implement initState
@@ -39,7 +44,25 @@ class _PodcastListenPageState extends State<PodcastListenPage>
           Padding(
             padding: EdgeInsets.only(right: 5.w),
             child: IconButton(
-                onPressed: () {},
+                onPressed: () async {
+                  confirm = await _podcastController.downloadPodcastFile(
+                      widget.episode.file, widget.episode.name);
+
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Center(
+                          child: confirm
+                              ? Text(
+                                  "Dosya başarıyla indirildi  !",
+                                  style: TextStyle(fontSize: 15.sp),
+                                )
+                              : Text(
+                                  "Dosya indirilirken bir hata oluştu !",
+                                  style: TextStyle(fontSize: 15.sp),
+                                )),
+                      showCloseIcon: true,
+                      backgroundColor:
+                          confirm ? AppColor.primaryColor : Colors.red));
+                },
                 icon: FaIcon(
                   FontAwesomeIcons.download,
                   color: AppColor.white,
@@ -114,19 +137,30 @@ class _PodcastListenPageState extends State<PodcastListenPage>
             ),
             SizedBox(
               width: 290.w,
-              child: ProgressBar(
-                progress: Duration.zero,
-                total: Duration(minutes: 3),
-                baseBarColor: AppColor.white,
-                thumbColor: AppColor.primaryColor.withOpacity(0.9),
-                progressBarColor: AppColor.primaryColor,
-                thumbRadius: 7.w,
-                thumbGlowRadius: 15.w,
-                timeLabelTextStyle:
-                    TextStyle(color: Colors.grey.shade300, fontSize: 16.sp),
-                timeLabelLocation: TimeLabelLocation.below,
-                timeLabelPadding: 5.h,
-                onSeek: (value) {},
+              child: StreamBuilder<Duration?>(
+                stream: _podcastController.audioPlayer.positionStream,
+                builder: (context, snapshotPosition) {
+                  return StreamBuilder<Duration?>(
+                      stream: _podcastController.audioPlayer.durationStream,
+                      builder: (context, snapshotDuration) {
+                        return ProgressBar(
+                          progress: snapshotPosition.data ?? Duration(),
+                          total: snapshotDuration.data ?? Duration(),
+                          baseBarColor: AppColor.white,
+                          thumbColor: AppColor.primaryColor.withOpacity(0.9),
+                          progressBarColor: AppColor.primaryColor,
+                          thumbRadius: 7.w,
+                          thumbGlowRadius: 15.w,
+                          timeLabelTextStyle: TextStyle(
+                              color: Colors.grey.shade300, fontSize: 16.sp),
+                          timeLabelLocation: TimeLabelLocation.below,
+                          timeLabelPadding: 5.h,
+                          onSeek: (duration) {
+                            _podcastController.audioPlayer.seek(duration);
+                          },
+                        );
+                      });
+                },
               ),
             ),
             Stack(children: [
@@ -136,7 +170,13 @@ class _PodcastListenPageState extends State<PodcastListenPage>
                   Padding(
                     padding: EdgeInsets.only(right: 35.w),
                     child: IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        final currentPosition =
+                            _podcastController.audioPlayer.position;
+                        final newPosition =
+                            currentPosition - Duration(seconds: 10);
+                        _podcastController.audioPlayer.seek(newPosition);
+                      },
                       icon: FaIcon(
                         FontAwesomeIcons.rotateLeft,
                         size: 60,
@@ -158,13 +198,34 @@ class _PodcastListenPageState extends State<PodcastListenPage>
                       ),
                     ),
                     onPressed: () {
-                      _animationController.forward();
+                      if (_podcastController.audioPlayer.playing) {
+                        _animationController.reverse();
+                        _podcastController.audioPlayer.pause();
+                      } else {
+                        _animationController.forward();
+                        _podcastController.audioPlayer.play();
+                        _podcastController.audioPlayer.playerStateStream
+                            .listen((state) {
+                          if (state.processingState ==
+                              ProcessingState.completed) {
+                            _podcastController.audioPlayer.seek(Duration.zero);
+                            _animationController.reverse();
+                            _podcastController.audioPlayer.stop();
+                          }
+                        });
+                      }
                     },
                   ),
                   Padding(
                     padding: EdgeInsets.only(left: 35.w),
                     child: IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        final currentPosition =
+                            _podcastController.audioPlayer.position;
+                        final newPosition =
+                            currentPosition + Duration(seconds: 10);
+                        _podcastController.audioPlayer.seek(newPosition);
+                      },
                       icon: FaIcon(
                         FontAwesomeIcons.rotateRight,
                         size: 60,
