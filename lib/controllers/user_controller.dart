@@ -6,9 +6,14 @@ import 'package:podcast_app/services/user_services.dart';
 class UserController extends GetxController {
   AuthService _authService = AuthService();
   UserService _userService = UserService();
-  Rx<User> currentUser =
-      User(id: "", name: "", surName: "", photo: "", email: "", createdTime: 1)
-          .obs;
+  Rx<User> currentUser = User(
+      id: "",
+      name: "",
+      surName: "",
+      photo: "",
+      email: "",
+      createdTime: 1,
+      favourite: [""]).obs;
   Rx<int> currentIndex = 0.obs;
   @override
   void onInit() {
@@ -18,10 +23,15 @@ class UserController extends GetxController {
 
   Future<bool> saveRegisterUser(
       String email, String password, String name, String surName) async {
-    String? id = await _authService.signUp(email, password);
-    bool confirm =
-        await _userService.saveRegisterUser(id, email, name, surName);
-    return confirm;
+    try {
+      String? id = await _authService.signUp(email, password);
+      bool confirm =
+          await _userService.saveRegisterUser(id, email, name, surName);
+      return confirm;
+    } catch (e) {
+      print(e.toString());
+      return false;
+    }
   }
 
   Future<void> signIn(String email, String password) async {
@@ -37,5 +47,9 @@ class UserController extends GetxController {
       currentUser.value = await _userService.getcurrentUser(id);
       print(currentUser.value.id);
     }
+  }
+
+  Future<void> signOut() async {
+    await _authService.signOut();
   }
 }

@@ -310,7 +310,7 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                           ),
                                           SizedBox(height: 10.h),
-                                          Container(
+                                          SizedBox(
                                             width: 160.w,
                                             child: Center(
                                               child: Text(

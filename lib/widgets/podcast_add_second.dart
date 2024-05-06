@@ -9,11 +9,12 @@ import 'package:just_audio/just_audio.dart';
 import 'package:podcast_app/app_colors.dart';
 import 'package:podcast_app/controllers/podcast_controller.dart';
 import 'package:podcast_app/controllers/user_controller.dart';
+import 'package:podcast_app/models/podcast.dart';
 import 'package:podcast_app/widgets/sound_record.dart';
 
 class PodcastAddSecondWidget extends StatefulWidget {
-  const PodcastAddSecondWidget({super.key});
-
+  PodcastAddSecondWidget({super.key, this.podcast});
+  final Podcast? podcast;
   @override
   State<PodcastAddSecondWidget> createState() => _PodcastAddSecondWidgetState();
 }
@@ -324,13 +325,19 @@ class _PodcastAddSecondWidgetState extends State<PodcastAddSecondWidget>
                                   _episodeNameController.text;
                               _podcastController.episodeAbout.value =
                                   _episodeAboutController.text;
-
+                              print(widget.podcast);
                               setState(() {
                                 isUploading = true;
                               });
 
-                              bool? confirm =
-                                  await _podcastController.uploadPodcast(
+                              bool? confirm = _podcastController
+                                      .addNewEpisode.value
+                                  ? await _podcastController.addNewEpisodee(
+                                      widget.podcast?.id ?? "",
+                                      _podcastController.episodeName.value,
+                                      _podcastController.episodeAbout.value,
+                                      widget.podcast?.name ?? "")
+                                  : await _podcastController.uploadPodcast(
                                       _podcastController.podcastName.value,
                                       _podcastController.podcastAbout.value,
                                       _userController.currentUser.value,
@@ -423,11 +430,17 @@ class _PodcastAddSecondWidgetState extends State<PodcastAddSecondWidget>
             ),
             TextButton(
                 onPressed: () {
-                  _podcastController.startPage.value = true;
-                  _podcastController.episodeName.value =
-                      _episodeNameController.text;
-                  _podcastController.episodeAbout.value =
-                      _episodeAboutController.text;
+                  if (_podcastController.addNewEpisode == true) {
+                    _podcastController.addNewEpisode.value = false;
+                    _podcastController.startPage.value = true;
+                    Get.back();
+                  } else {
+                    _podcastController.startPage.value = true;
+                    _podcastController.episodeName.value =
+                        _episodeNameController.text;
+                    _podcastController.episodeAbout.value =
+                        _episodeAboutController.text;
+                  }
                 },
                 child: Padding(
                   padding: EdgeInsets.only(bottom: 15.h),

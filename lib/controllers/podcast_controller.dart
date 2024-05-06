@@ -19,6 +19,7 @@ class PodcastController extends GetxController {
   Rx<bool> startPage = true.obs;
   Rx<bool> isButtonActive = false.obs;
   Rx<bool> isDownloadedPodcast = false.obs;
+  Rx<bool> addNewEpisode = false.obs;
   Rx<String> currentPodcastFilePath = "".obs;
   Rx<String> podcastName = "".obs;
   RxMap<String, bool> selectedCategories = <String, bool>{}.obs;
@@ -27,7 +28,8 @@ class PodcastController extends GetxController {
   Rx<String> episodeAbout = "".obs;
   RxList<Podcast> continuePodcastList = <Podcast>[].obs;
   RxList<Episode> continuePodcastEpisodeList = <Episode>[].obs;
-
+  RxList<Podcast> myPodcasts = <Podcast>[].obs;
+  RxList<Podcast> favouriteList = <Podcast>[].obs;
   Rx<File> podcastImageFile = File("").obs;
   Rx<File> podcastEpisodeImageFile = File("").obs;
 
@@ -127,6 +129,7 @@ class PodcastController extends GetxController {
     String? imagePath = await _podcastService.uploadPodcastImage(
         podcastName, podcastImageFile.value);
     print(imagePath);
+
     String? episodeImagePath = await _podcastService.uploadPodcastImage(
         podcastName, podcastEpisodeImageFile.value);
     String? episodePath = await _podcastService.uploadPodcastFile(
@@ -145,6 +148,17 @@ class PodcastController extends GetxController {
     return confirm;
   }
 
+  Future<bool> addNewEpisodee(String podcastId, String episodeName,
+      String episodeAbout, String podcastName) async {
+    String? episodeImagePath = await _podcastService.uploadPodcastImage(
+        podcastName, podcastEpisodeImageFile.value);
+    String? episodePath = await _podcastService.uploadPodcastFile(
+        podcastName, File(currentPodcastFilePath.value));
+    bool confirm = await _podcastService.addNewEpisode(podcastId, episodeName,
+        episodeAbout, episodePath, episodeImagePath, podcastName);
+    return confirm;
+  }
+
   Future<void> getContinueListeningPodcast() async {
     List<Podcast>? _continuePodcasts = [];
     _continuePodcasts = await _podcastService.getContinueListeningPodcast();
@@ -157,6 +171,11 @@ class PodcastController extends GetxController {
         await _podcastService.getContinueListeningPodcastEpisodes(podcastId);
     continuePodcastEpisodeList.addAll(episodesToAdd);
     print(continuePodcastEpisodeList.length);
+  }
+
+  Future<List<Podcast>> getMyPodcasts(String userId) async {
+    myPodcasts.value = await _podcastService.getMyPodcasts(userId);
+    return myPodcasts;
   }
 
   Future<bool> downloadPodcastFile(var url, String fileName) async {
@@ -176,5 +195,23 @@ class PodcastController extends GetxController {
     } else {
       return false;
     }
+  }
+
+  Future<void> addPodcastFavourite(String userId, String podcastId) async {
+    await _podcastService.addPodcastFavourite(userId, podcastId);
+  }
+
+  Future<void> removePodcastFavourite(String userId, String podcastId) async {
+    await _podcastService.removePodcastFavourite(userId, podcastId);
+  }
+
+  Future<void> getFavouritePodcasts(String userId) async {
+    favouriteList.value = await _podcastService.getFavouritePodcasts(userId);
+  }
+
+  Future<bool> isFavorite(String podcastId, String userId) async {
+    bool isFavorite;
+    isFavorite = await _podcastService.isFavourite(podcastId, userId);
+    return isFavorite;
   }
 }

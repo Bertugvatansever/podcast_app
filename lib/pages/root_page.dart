@@ -7,6 +7,7 @@ import 'package:podcast_app/controllers/user_controller.dart';
 import 'package:podcast_app/pages/home_page.dart';
 import 'package:podcast_app/pages/my_profile_page.dart';
 import 'package:podcast_app/pages/podcast_add_page.dart';
+import 'package:podcast_app/pages/profile_page.dart';
 
 class RootPage extends StatefulWidget {
   const RootPage({super.key});

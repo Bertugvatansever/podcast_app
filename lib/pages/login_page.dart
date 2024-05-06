@@ -64,16 +64,20 @@ class _LoginPageState extends State<LoginPage> {
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                     color: AppColor.textFieldColor),
-                child: TextField(
-                  style: TextStyle(color: Colors.white),
-                  controller: _emailController,
-                  enableSuggestions: false,
-                  decoration: InputDecoration(
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10.w),
-                      hintText: "Your Email Adress",
-                      hintStyle: TextStyle(
-                          color: AppColor.textFieldTextcolor, fontSize: 18.sp)),
+                child: Align(
+                  alignment: Alignment.center,
+                  child: TextField(
+                    style: TextStyle(color: Colors.white),
+                    controller: _emailController,
+                    enableSuggestions: false,
+                    decoration: InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(horizontal: 10.w),
+                        hintText: "Your Email Adress",
+                        hintStyle: TextStyle(
+                            color: AppColor.textFieldTextcolor,
+                            fontSize: 18.sp)),
+                  ),
                 ),
                 width: 340.w,
                 height: 50.h,
@@ -101,15 +105,21 @@ class _LoginPageState extends State<LoginPage> {
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                     color: AppColor.textFieldColor),
-                child: TextField(
-                  controller: _passwordController,
-                  enableSuggestions: false,
-                  decoration: InputDecoration(
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10.w),
-                      hintText: "Your Password ",
-                      hintStyle: TextStyle(
-                          color: AppColor.textFieldTextcolor, fontSize: 18.sp)),
+                child: Align(
+                  alignment: Alignment.center,
+                  child: TextField(
+                    style: TextStyle(color: AppColor.white),
+                    controller: _passwordController,
+                    obscureText: true,
+                    enableSuggestions: false,
+                    decoration: InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(horizontal: 10.w),
+                        hintText: "Your Password ",
+                        hintStyle: TextStyle(
+                            color: AppColor.textFieldTextcolor,
+                            fontSize: 18.sp)),
+                  ),
                 ),
                 width: 340.w,
                 height: 50.h,
@@ -143,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
                     width: 180.w,
                     height: 60.h,
                     child: Text(
-                      "Don't have the account ?",
+                      "Don't have an account ?",
                       style: TextStyle(
                           color: AppColor.primaryColor, fontSize: 19.sp),
                     ),

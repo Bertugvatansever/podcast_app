@@ -25,6 +25,7 @@ class _PodcastListenPageState extends State<PodcastListenPage>
   late Animation<double> animation;
   PodcastController _podcastController = Get.find();
   bool confirm = false;
+  bool isDownloading = false;
   @override
   void initState() {
     // TODO: implement initState
@@ -43,30 +44,42 @@ class _PodcastListenPageState extends State<PodcastListenPage>
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 5.w),
-            child: IconButton(
-                onPressed: () async {
-                  confirm = await _podcastController.downloadPodcastFile(
-                      widget.episode.file, widget.episode.name);
-
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Center(
-                          child: confirm
-                              ? Text(
-                                  "Dosya başarıyla indirildi  !",
-                                  style: TextStyle(fontSize: 15.sp),
-                                )
-                              : Text(
-                                  "Dosya indirilirken bir hata oluştu !",
-                                  style: TextStyle(fontSize: 15.sp),
-                                )),
-                      showCloseIcon: true,
-                      backgroundColor:
-                          confirm ? AppColor.primaryColor : Colors.red));
-                },
-                icon: FaIcon(
-                  FontAwesomeIcons.download,
-                  color: AppColor.white,
-                )),
+            child: Obx(
+              () => IconButton(
+                  onPressed: () async {
+                    _podcastController.isDownloadedPodcast.value = true;
+                    confirm = await _podcastController.downloadPodcastFile(
+                        widget.episode.file, widget.episode.name);
+                    _podcastController.isDownloadedPodcast.value = false;
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Center(
+                            child: confirm
+                                ? Text(
+                                    "Dosya başarıyla indirildi  !",
+                                    style: TextStyle(fontSize: 15.sp),
+                                  )
+                                : Text(
+                                    "Dosya indirilirken bir hata oluştu !",
+                                    style: TextStyle(fontSize: 15.sp),
+                                  )),
+                        showCloseIcon: true,
+                        backgroundColor:
+                            confirm ? AppColor.primaryColor : Colors.red));
+                  },
+                  icon: _podcastController.isDownloadedPodcast.value
+                      ? SizedBox(
+                          width: 22.w,
+                          height: 22.w,
+                          child: CircularProgressIndicator(
+                            color: AppColor.primaryColor,
+                            strokeWidth: 4.0.w,
+                          ),
+                        )
+                      : FaIcon(
+                          FontAwesomeIcons.download,
+                          color: AppColor.white,
+                        )),
+            ),
           )
         ],
         title: Text(

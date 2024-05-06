@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:podcast_app/controllers/podcast_controller.dart';
+import 'package:podcast_app/models/podcast.dart';
 import 'package:podcast_app/widgets/podcast_add_first.dart';
 import 'package:podcast_app/widgets/podcast_add_second.dart';
 
 class PodcastAdd extends StatefulWidget {
-  const PodcastAdd({super.key});
-
+  PodcastAdd({super.key, this.podcast});
+  final Podcast? podcast;
   @override
   State<PodcastAdd> createState() => _PodcastAddState();
 }
@@ -40,7 +41,9 @@ class _PodcastAddState extends State<PodcastAdd>
             child: SingleChildScrollView(
                 child: _podcastController.startPage.value
                     ? PodcastAddFirstWidget()
-                    : PodcastAddSecondWidget()),
+                    : PodcastAddSecondWidget(
+                        podcast: widget.podcast,
+                      )),
           ),
         ]),
       ),
