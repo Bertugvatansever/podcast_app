@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,11 +12,20 @@ import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:podcast_app/app_colors.dart';
 import 'package:podcast_app/controllers/podcast_controller.dart';
+import 'package:podcast_app/models/download.dart';
 import 'package:podcast_app/models/episode.dart';
 
 class PodcastListenPage extends StatefulWidget {
-  const PodcastListenPage({super.key, required this.episode});
-  final Episode episode;
+  const PodcastListenPage(
+      {super.key,
+      this.episode,
+      required this.podcastOwner,
+      required this.podcastEpisodeName,
+      this.downloadPodcast});
+  final Episode? episode;
+  final String podcastOwner;
+  final String podcastEpisodeName;
+  final Download? downloadPodcast;
   @override
   State<PodcastListenPage> createState() => _PodcastListenPageState();
 }
@@ -49,7 +60,16 @@ class _PodcastListenPageState extends State<PodcastListenPage>
                   onPressed: () async {
                     _podcastController.isDownloadedPodcast.value = true;
                     confirm = await _podcastController.downloadPodcastFile(
-                        widget.episode.file, widget.episode.name);
+                        widget.episode!.file,
+                        widget.episode!.episodeImage,
+                        widget.episode!.name);
+                    _podcastController.downloadPodcastLocalDb(
+                        _podcastController.downloadFilePath.value,
+                        widget.episode!.podcastName,
+                        widget.podcastOwner,
+                        _podcastController.downloadPhotoPath.value,
+                        widget.episode!.episodeAbout,
+                        widget.podcastEpisodeName);
                     _podcastController.isDownloadedPodcast.value = false;
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Center(
@@ -83,7 +103,9 @@ class _PodcastListenPageState extends State<PodcastListenPage>
           )
         ],
         title: Text(
-          widget.episode.podcastName,
+          _podcastController.isActiveDownloadListen.value
+              ? widget.downloadPodcast?.podcastName ?? ""
+              : widget.episode?.podcastName ?? "",
           style: TextStyle(
             color: AppColor.white,
             fontSize: 18.sp,
@@ -108,15 +130,29 @@ class _PodcastListenPageState extends State<PodcastListenPage>
               height: 12.h,
             ),
             Center(
-              child: Container(
-                width: 300.w,
-                height: 300.h,
-                decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: NetworkImage(widget.episode.episodeImage),
-                        fit: BoxFit.cover),
-                    borderRadius: BorderRadius.all(Radius.circular(15))),
-              ),
+              child: _podcastController.isActiveDownloadListen.value
+                  ? Container(
+                      width: 300.w,
+                      height: 300.h,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(15)),
+                        child: Image.file(
+                          File(widget.downloadPodcast?.podcastEpisodePhoto ??
+                              ""),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    )
+                  : Container(
+                      width: 300.w,
+                      height: 300.h,
+                      decoration: BoxDecoration(
+                          image: DecorationImage(
+                              image: NetworkImage(
+                                  widget.episode?.episodeImage ?? ""),
+                              fit: BoxFit.cover),
+                          borderRadius: BorderRadius.all(Radius.circular(15))),
+                    ),
             ),
             SizedBox(
               height: 10.h,
@@ -126,7 +162,9 @@ class _PodcastListenPageState extends State<PodcastListenPage>
               child: Padding(
                 padding: EdgeInsets.only(left: 48.w),
                 child: Text(
-                  widget.episode.podcastName,
+                  _podcastController.isActiveDownloadListen.value
+                      ? widget.downloadPodcast?.podcastName ?? ""
+                      : widget.episode?.podcastName ?? "",
                   style: TextStyle(
                       color: AppColor.white,
                       fontWeight: FontWeight.bold,
@@ -139,7 +177,9 @@ class _PodcastListenPageState extends State<PodcastListenPage>
               child: Padding(
                 padding: EdgeInsets.only(left: 48.w),
                 child: Text(
-                  widget.episode.name,
+                  _podcastController.isActiveDownloadListen.value
+                      ? widget.downloadPodcast?.podcastEpisodeName ?? ""
+                      : widget.episode?.name ?? "",
                   style:
                       TextStyle(color: Colors.grey.shade500, fontSize: 20.sp),
                 ),
@@ -307,7 +347,9 @@ class _PodcastListenPageState extends State<PodcastListenPage>
                   padding:
                       EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
                   child: Text(
-                    widget.episode.episodeAbout,
+                    _podcastController.isActiveDownloadListen.value
+                        ? widget.downloadPodcast?.podcastEpisodeAbout ?? ""
+                        : widget.episode?.episodeAbout ?? "",
                     style: TextStyle(color: Colors.white, fontSize: 16.sp),
                   ),
                 ),

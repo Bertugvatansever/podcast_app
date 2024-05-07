@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:podcast_app/app_colors.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -114,17 +116,56 @@ class _ProfilePageState extends State<ProfilePage> {
                 SizedBox(
                   height: 15.h,
                 ),
-                ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        isFollow = !isFollow;
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColor.primaryColor,
-                        foregroundColor: AppColor.white,
-                        minimumSize: Size(200.w, 35.h)),
-                    child: Text(isFollow ? "Takip ediliyor" : "Takip et")),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    IconButton(
+                        onPressed: () {
+                          Get.back();
+                        },
+                        icon: Container(
+                          width: 41.w,
+                          height: 41.h,
+                          decoration: BoxDecoration(
+                              color: AppColor.primaryColor,
+                              shape: BoxShape.circle),
+                          child: Center(
+                            child: FaIcon(
+                              FontAwesomeIcons.backward,
+                              color: AppColor.white,
+                              size: 17,
+                            ),
+                          ),
+                        )),
+                    ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            isFollow = !isFollow;
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColor.primaryColor,
+                            foregroundColor: AppColor.white,
+                            minimumSize: Size(200.w, 35.h)),
+                        child: Text(isFollow ? "Takip ediliyor" : "Takip et")),
+                    IconButton(
+                        onPressed: () {},
+                        icon: Container(
+                          width: 41.w,
+                          height: 41.h,
+                          decoration: BoxDecoration(
+                              color: AppColor.primaryColor,
+                              shape: BoxShape.circle),
+                          child: Center(
+                            child: Icon(
+                              Icons.block_sharp,
+                              color: AppColor.white,
+                              size: 23,
+                            ),
+                          ),
+                        )),
+                  ],
+                ),
                 SizedBox(
                   height: 15.h,
                 ),

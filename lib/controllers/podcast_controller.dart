@@ -5,23 +5,29 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:podcast_app/models/download.dart';
 import 'package:podcast_app/models/episode.dart';
 import 'package:podcast_app/models/podcast.dart';
 import 'package:podcast_app/models/user.dart';
+import 'package:podcast_app/services/localdb_services.dart';
 import 'package:podcast_app/services/podcast_services.dart';
 import 'package:record/record.dart';
 import 'package:http/http.dart' as http;
 
 class PodcastController extends GetxController {
   PodcastService _podcastService = PodcastService();
+  LocalDbService _localDbService = LocalDbService();
   Rx<bool> isRecorded = false.obs;
   Rx<bool> isPaused = false.obs;
   Rx<bool> startPage = true.obs;
   Rx<bool> isButtonActive = false.obs;
   Rx<bool> isDownloadedPodcast = false.obs;
   Rx<bool> addNewEpisode = false.obs;
+  Rx<bool> isActiveDownloadListen = false.obs;
   Rx<String> currentPodcastFilePath = "".obs;
   Rx<String> podcastName = "".obs;
+  Rx<String> downloadFilePath = "".obs;
+  Rx<String> downloadPhotoPath = "".obs;
   RxMap<String, bool> selectedCategories = <String, bool>{}.obs;
   Rx<String> podcastAbout = "".obs;
   Rx<String> episodeName = "".obs;
@@ -30,6 +36,7 @@ class PodcastController extends GetxController {
   RxList<Episode> continuePodcastEpisodeList = <Episode>[].obs;
   RxList<Podcast> myPodcasts = <Podcast>[].obs;
   RxList<Podcast> favouriteList = <Podcast>[].obs;
+  RxList<Download> downloadsList = <Download>[].obs;
   Rx<File> podcastImageFile = File("").obs;
   Rx<File> podcastEpisodeImageFile = File("").obs;
 
@@ -178,18 +185,24 @@ class PodcastController extends GetxController {
     return myPodcasts;
   }
 
-  Future<bool> downloadPodcastFile(var url, String fileName) async {
-    final response = await http.get(Uri.parse(url));
+  Future<bool> downloadPodcastFile(
+      var fileUrl, var photoUrl, String fileName) async {
+    final response = await http.get(Uri.parse(fileUrl));
+    final responsePhoto = await http.get(Uri.parse(photoUrl));
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || responsePhoto.statusCode == 200) {
       final bytes = response.bodyBytes;
+      final photoBytes = responsePhoto.bodyBytes;
       final directory = await getDownloadsDirectory();
       final filePath =
           '${directory!.path}/${fileName}.mp3'; // Kaydedilecek dosyanın yolunu belirle
-
-      print(filePath);
+      final photoPath = '${directory!.path}/${fileName}.jpeg';
       File file = File(filePath.trim());
       await file.writeAsBytes(bytes); // Dosyayı cihaza kaydet
+      file = File(photoPath.trim());
+      await file.writeAsBytes(photoBytes);
+      downloadFilePath.value = filePath;
+      downloadPhotoPath.value = photoPath;
       print("Dosya Başarıyla indirildi");
       return true;
     } else {
@@ -213,5 +226,31 @@ class PodcastController extends GetxController {
     bool isFavorite;
     isFavorite = await _podcastService.isFavourite(podcastId, userId);
     return isFavorite;
+  }
+
+  Future<void> downloadPodcastLocalDb(
+      String location,
+      String podcastName,
+      String podcastOwner,
+      String podcastEpisodePhoto,
+      String podcastEpisodeAbout,
+      String podcastEpisodeName) async {
+    await _localDbService.saveDownloadPodcast(
+        location,
+        podcastName,
+        podcastOwner,
+        podcastEpisodePhoto,
+        podcastEpisodeAbout,
+        podcastEpisodeName);
+  }
+
+  Future<void> getDownloadsPodcast() async {
+    downloadsList.value = await _localDbService.getDownloads();
+  }
+
+  Future<void> deleteDownload(
+      String downloadPodcastId, String filePath, String photoPath) async {
+    await _localDbService.deleteDownload(
+        downloadPodcastId, filePath, photoPath);
   }
 }

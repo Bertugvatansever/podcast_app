@@ -10,6 +10,7 @@ import 'package:podcast_app/controllers/podcast_controller.dart';
 import 'package:podcast_app/controllers/user_controller.dart';
 import 'package:podcast_app/models/podcast.dart';
 import 'package:podcast_app/pages/podcast_listen_page.dart';
+import 'package:podcast_app/pages/profile_page.dart';
 
 class PodcastPage extends StatefulWidget {
   const PodcastPage({super.key, required this.podcast});
@@ -164,13 +165,18 @@ class _PodcastPageState extends State<PodcastPage> {
                         SizedBox(
                           height: 5.h,
                         ),
-                        Text(
-                          '${widget.podcast.user?.name ?? ""}  ${widget.podcast.user?.surName}',
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 17.sp,
+                        InkWell(
+                          onTap: () {
+                            Get.to(ProfilePage());
+                          },
+                          child: Text(
+                            '${widget.podcast.user?.name ?? ""}  ${widget.podcast.user?.surName}',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 17.sp,
+                            ),
                           ),
                         ),
                         SizedBox(
@@ -433,8 +439,13 @@ class _PodcastPageState extends State<PodcastPage> {
                                   .continuePodcastEpisodeList[index].file);
                           print(_podcastController.audioPlayer.duration);
                           Get.to(() => PodcastListenPage(
-                              episode: _podcastController
-                                  .continuePodcastEpisodeList[index]));
+                                episode: _podcastController
+                                    .continuePodcastEpisodeList[index],
+                                podcastOwner:
+                                    "${widget.podcast.user!.name!} ${widget.podcast.user!.surName!}",
+                                podcastEpisodeName: _podcastController
+                                    .continuePodcastEpisodeList[index].name,
+                              ));
                         },
                         child: Padding(
                           padding: EdgeInsets.only(left: 10.w, bottom: 10.h),

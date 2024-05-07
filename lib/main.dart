@@ -7,10 +7,12 @@ import 'package:podcast_app/controllers/podcast_controller.dart';
 import 'package:podcast_app/controllers/user_controller.dart';
 import 'package:podcast_app/firebase_options.dart';
 import 'package:podcast_app/pages/splash_page.dart';
+import 'package:podcast_app/services/localdb_services.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await LocalDbService().initializeLocalDb();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }

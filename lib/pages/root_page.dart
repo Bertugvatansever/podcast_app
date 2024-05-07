@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:podcast_app/app_colors.dart';
+import 'package:podcast_app/controllers/podcast_controller.dart';
 import 'package:podcast_app/controllers/user_controller.dart';
 import 'package:podcast_app/pages/home_page.dart';
 import 'package:podcast_app/pages/my_profile_page.dart';
@@ -18,6 +19,7 @@ class RootPage extends StatefulWidget {
 
 class _RootPageState extends State<RootPage> {
   UserController _userController = Get.find();
+  PodcastController _podcastController = Get.find();
   List<Widget> screens = [
     HomePage(),
     Container(),
@@ -90,6 +92,9 @@ class _RootPageState extends State<RootPage> {
               ),
             ],
             onTap: (value) {
+              if (value == 0) {
+                _podcastController.isActiveDownloadListen.value = false;
+              }
               _userController.currentIndex.value = value;
             },
           ),
