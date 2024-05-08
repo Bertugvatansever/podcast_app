@@ -138,6 +138,22 @@ class PodcastService {
     return myPodcasts;
   }
 
+  Future<List<Podcast>> getProfilePodcasts(String userId) async {
+    List<Podcast> profilePodcasts = [];
+    CollectionReference collectionReference =
+        FirebaseFirestore.instance.collection("podcasts");
+    QuerySnapshot querySnapshot = await collectionReference
+        // içerideki map e erişmek için nokta kullanıyoruz.
+        .where("podcastuser.id", isEqualTo: userId)
+        .get();
+    querySnapshot.docs.forEach((element) {
+      Podcast podcast =
+          Podcast.fromJson(element.data() as Map<String, dynamic>);
+      profilePodcasts.add(podcast);
+    });
+    return profilePodcasts;
+  }
+
   Future<bool> addNewEpisode(
       String podcastId,
       String episodeName,
@@ -218,22 +234,6 @@ class PodcastService {
       return podcastFavouriteList;
     } else {
       return podcastFavouriteList;
-    }
-  }
-
-  Future<bool> isFavourite(String podcastId, String userId) async {
-    CollectionReference userReference =
-        FirebaseFirestore.instance.collection("users");
-    DocumentSnapshot userSnapshot = await userReference.doc(userId).get();
-
-    User user = User.fromJson(userSnapshot.data() as Map<String, dynamic>);
-    List<String>? favourites =
-        user.favourite?.where((element) => element == podcastId).toList();
-
-    if (favourites?.isEmpty ?? true) {
-      return false;
-    } else {
-      return true;
     }
   }
 }

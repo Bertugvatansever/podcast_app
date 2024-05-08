@@ -24,6 +24,7 @@ class PodcastController extends GetxController {
   Rx<bool> isDownloadedPodcast = false.obs;
   Rx<bool> addNewEpisode = false.obs;
   Rx<bool> isActiveDownloadListen = false.obs;
+
   Rx<String> currentPodcastFilePath = "".obs;
   Rx<String> podcastName = "".obs;
   Rx<String> downloadFilePath = "".obs;
@@ -36,8 +37,10 @@ class PodcastController extends GetxController {
   RxList<Episode> continuePodcastEpisodeList = <Episode>[].obs;
   RxList<Podcast> myPodcasts = <Podcast>[].obs;
   RxList<Podcast> favouriteList = <Podcast>[].obs;
+  RxList<Podcast> profilePodcastList = <Podcast>[].obs;
   RxList<Download> downloadsList = <Download>[].obs;
   Rx<File> podcastImageFile = File("").obs;
+
   Rx<File> podcastEpisodeImageFile = File("").obs;
 
   Duration recordTime = Duration.zero;
@@ -185,6 +188,10 @@ class PodcastController extends GetxController {
     return myPodcasts;
   }
 
+  Future<void> getProfilePodcasts(String userId) async {
+    profilePodcastList.value = await _podcastService.getProfilePodcasts(userId);
+  }
+
   Future<bool> downloadPodcastFile(
       var fileUrl, var photoUrl, String fileName) async {
     final response = await http.get(Uri.parse(fileUrl));
@@ -220,12 +227,6 @@ class PodcastController extends GetxController {
 
   Future<void> getFavouritePodcasts(String userId) async {
     favouriteList.value = await _podcastService.getFavouritePodcasts(userId);
-  }
-
-  Future<bool> isFavorite(String podcastId, String userId) async {
-    bool isFavorite;
-    isFavorite = await _podcastService.isFavourite(podcastId, userId);
-    return isFavorite;
   }
 
   Future<void> downloadPodcastLocalDb(

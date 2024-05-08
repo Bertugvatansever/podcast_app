@@ -9,6 +9,7 @@ import 'package:podcast_app/app_colors.dart';
 import 'package:podcast_app/controllers/podcast_controller.dart';
 import 'package:podcast_app/controllers/user_controller.dart';
 import 'package:podcast_app/models/podcast.dart';
+import 'package:podcast_app/models/user.dart';
 import 'package:podcast_app/pages/podcast_listen_page.dart';
 import 'package:podcast_app/pages/profile_page.dart';
 
@@ -34,7 +35,6 @@ class _PodcastPageState extends State<PodcastPage> {
     // TODO: implement initState
     super.initState();
     _podcastController.getContinueListeningPodcastEpisodes(widget.podcast.id!);
-    // isFavoritePodcast();
   }
 
   @override
@@ -166,8 +166,12 @@ class _PodcastPageState extends State<PodcastPage> {
                           height: 5.h,
                         ),
                         InkWell(
-                          onTap: () {
-                            Get.to(ProfilePage());
+                          onTap: () async {
+                            User user = await _userController
+                                .getPodcastOwnerUser(widget.podcast.user!.id!);
+                            Get.to(() => ProfilePage(
+                                  profileUser: user,
+                                ));
                           },
                           child: Text(
                             '${widget.podcast.user?.name ?? ""}  ${widget.podcast.user?.surName}',
@@ -539,13 +543,5 @@ class _PodcastPageState extends State<PodcastPage> {
         ),
       ),
     );
-  }
-
-  Future<void> isFavoritePodcast() async {
-    isFavorite = await _podcastController.isFavorite(
-        widget.podcast.id!, _userController.currentUser.value.id!);
-    setState(() {
-      favouriteCheck = true;
-    });
   }
 }

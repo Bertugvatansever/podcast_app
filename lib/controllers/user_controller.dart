@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:podcast_app/models/user.dart';
 import 'package:podcast_app/services/auth_services.dart';
 import 'package:podcast_app/services/user_services.dart';
@@ -15,6 +19,11 @@ class UserController extends GetxController {
       createdTime: 1,
       favourite: [""]).obs;
   Rx<int> currentIndex = 0.obs;
+  Rx<bool> isProfileEdit = false.obs;
+  Rx<bool> isProfilePhoto = false.obs;
+  Rx<bool> isProfilePhotoChange = false.obs;
+  Rx<File> profilePhotoFile = File("").obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -49,7 +58,37 @@ class UserController extends GetxController {
     }
   }
 
+  Future<User> getPodcastOwnerUser(String id) async {
+    User podcastOwnerUser = await _userService.getPodcastOwnerUser(id);
+    return podcastOwnerUser;
+  }
+
   Future<void> signOut() async {
     await _authService.signOut();
+  }
+
+  Future<void> selectProfilePhoto() async {
+    var pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    print(pickedFile!.path.toString());
+    if (pickedFile != null) {
+      try {
+        profilePhotoFile.value = File(pickedFile.path);
+        isProfilePhoto.value = true;
+        isProfilePhotoChange.value = true;
+      } catch (e) {
+        print(e.toString());
+      }
+    }
+  }
+
+  Future<String?> saveProfilePhoto(
+      String userId, String userName, File profilePhoto) async {
+    await _userService.saveProfilePhoto(userId, userName, profilePhoto);
+  }
+
+  Future<void> changeNameSurname(String newName, String newSurName,
+      String userId, bool nameChanged, bool surnameChanged) async {
+    await _userService.changeNameSurname(
+        newName, newSurName, userId, nameChanged, surnameChanged);
   }
 }
