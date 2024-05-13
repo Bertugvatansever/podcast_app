@@ -22,9 +22,12 @@ class PodcastController extends GetxController {
   Rx<bool> startPage = true.obs;
   Rx<bool> isButtonActive = false.obs;
   Rx<bool> isDownloadedPodcast = false.obs;
+  Rx<bool> isDownloadingPodcast = false.obs;
   Rx<bool> addNewEpisode = false.obs;
   Rx<bool> isActiveDownloadListen = false.obs;
-
+  Rx<bool> deleteDownloadBool = false.obs;
+  Rx<bool> isDown = false.obs;
+  Rx<bool> podcastsPage = false.obs;
   Rx<String> currentPodcastFilePath = "".obs;
   Rx<String> podcastName = "".obs;
   Rx<String> downloadFilePath = "".obs;
@@ -176,9 +179,9 @@ class PodcastController extends GetxController {
   }
 
   Future<void> getContinueListeningPodcastEpisodes(String podcastId) async {
-    continuePodcastEpisodeList.clear();
     List<Episode> episodesToAdd =
         await _podcastService.getContinueListeningPodcastEpisodes(podcastId);
+    continuePodcastEpisodeList.clear();
     continuePodcastEpisodeList.addAll(episodesToAdd);
     print(continuePodcastEpisodeList.length);
   }
@@ -249,9 +252,28 @@ class PodcastController extends GetxController {
     downloadsList.value = await _localDbService.getDownloads();
   }
 
-  Future<void> deleteDownload(
+  Future<bool> deleteDownload(
       String downloadPodcastId, String filePath, String photoPath) async {
-    await _localDbService.deleteDownload(
+    bool confirm = await _localDbService.deleteDownload(
         downloadPodcastId, filePath, photoPath);
+    return confirm;
+  }
+
+  Future<void> checkFileExistence(String filePath) async {
+    File file = File(filePath);
+    bool fileExists = await file.exists();
+
+    if (fileExists) {
+      isDownloadedPodcast.value = true;
+      print('Dosya mevcut.');
+    } else {
+      isDownloadedPodcast.value = false;
+      print('Dosya mevcut değil.');
+    }
+  }
+
+  Future<void> checkPodcastDownloaded(String episodeName) async {
+    Directory? directory = await getDownloadsDirectory();
+    checkFileExistence('${directory!.path}/${episodeName}.mp3');
   }
 }

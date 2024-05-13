@@ -49,9 +49,7 @@ class _MyProfileEditState extends State<MyProfileEdit> {
         ),
         centerTitle: true,
       ),
-      body: SizedBox(
-        width: ScreenUtil().screenWidth,
-        height: ScreenUtil().screenHeight,
+      body: SingleChildScrollView(
         child: Column(
           children: [
             SizedBox(
@@ -214,12 +212,23 @@ class _MyProfileEditState extends State<MyProfileEdit> {
                 onPressed: onChangedName ||
                         onChangedSurname ||
                         _userController.isProfilePhotoChange.value
-                    ? () async {
+                    ? () {
                         if (_userController.isProfilePhotoChange.value) {
-                          await _userController.saveProfilePhoto(
+                          _userController.saveProfilePhoto(
                               _userController.currentUser.value.id!,
                               _userController.currentUser.value.name!,
                               _userController.profilePhotoFile.value);
+                          _userController.saveProfilePhotoLocalDb(
+                              _userController.profilePhotoFile.value,
+                              _userController.currentUser.value.name!);
+                          _userController.isProfilePhotoChange.value = false;
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              backgroundColor: AppColor.primaryColor,
+                              showCloseIcon: true,
+                              content: Center(
+                                child:
+                                    Text("Profil fotoğrafınız değiştirildi !"),
+                              )));
                         }
                         if (onChangedName || onChangedSurname) {
                           _userController.changeNameSurname(

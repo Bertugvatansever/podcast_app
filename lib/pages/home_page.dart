@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -22,11 +24,28 @@ class _HomePageState extends State<HomePage> {
   UserController _userController = Get.find();
   PodcastController _podcastController = Get.find();
   bool isPhotosLoaded = false;
+  Timer? timer;
+  PageController _pageViewController = PageController(initialPage: 0);
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    timer = Timer.periodic(Duration(seconds: 10), (_) {
+      if (_pageViewController.page! < 4) {
+        _pageViewController.animateToPage(_pageViewController.page!.toInt() + 1,
+            duration: Duration(milliseconds: 500), curve: Curves.linear);
+      } else {
+        _pageViewController.animateToPage(0,
+            duration: Duration(milliseconds: 500), curve: Curves.linear);
+      }
+    });
     _podcastController.getContinueListeningPodcast();
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -104,6 +123,7 @@ class _HomePageState extends State<HomePage> {
                           height: 380.h,
                           // PageView kaydırmalı sayfa geçişlerinde çok kullanışlı
                           child: PageView.builder(
+                            controller: _pageViewController,
                             scrollDirection: Axis.horizontal,
                             itemCount: 5,
                             itemBuilder: (BuildContext context, int index) {

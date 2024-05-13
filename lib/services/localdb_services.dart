@@ -9,6 +9,7 @@ class LocalDbService {
     await Hive.initFlutter();
     Hive.registerAdapter(DownloadAdapter());
     await Hive.openBox<Download>('Downloads');
+    await Hive.openBox<String>('ProfilePhotos');
   }
 
   Future<void> saveDownloadPodcast(
@@ -31,7 +32,22 @@ class LocalDbService {
     await downloadsBox.put(id, downloads);
   }
 
-  Future<void> deleteDownload(
+  Future<String> getMyProfilePhoto() async {
+    Box<String> profilePhotoBox = Hive.box<String>("ProfilePhotos");
+    List<String> photoList = profilePhotoBox.values.toList();
+    print("photolistlength" + photoList[0]);
+    String profilePhoto = photoList.isNotEmpty ? photoList[0] : '';
+    print("profilfotografıpath" + profilePhoto);
+    return profilePhoto;
+  }
+
+  Future<void> saveProfilePhotoLocalDb(String path) async {
+    Box<String> profilePhotoBox = Hive.box<String>("ProfilePhotos");
+    String id = "userId";
+    await profilePhotoBox.put(id, path);
+  }
+
+  Future<bool> deleteDownload(
       String id, String filePath, String photoPath) async {
     try {
       final file = File(filePath);
@@ -50,8 +66,10 @@ class LocalDbService {
         print('Fotoğraf mevcut değil: $photoPath');
       }
       await Hive.box<Download>("Downloads").delete(id); // Veritabanından silme
+      return true;
     } catch (e) {
       print('Dosya silinirken bir hata oluştu: $e');
+      return false;
     }
   }
 

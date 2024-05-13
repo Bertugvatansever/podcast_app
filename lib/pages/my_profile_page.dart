@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -5,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:podcast_app/app_colors.dart';
 import 'package:podcast_app/controllers/podcast_controller.dart';
 import 'package:podcast_app/controllers/user_controller.dart';
+import 'package:podcast_app/pages/profile_page.dart';
 import 'package:podcast_app/widgets/my_library.dart';
 import 'package:podcast_app/widgets/my_profile_edit.dart';
 
@@ -74,12 +76,20 @@ class _MyProfilePageState extends State<MyProfilePage> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                _userController.currentUser.value.name!,
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 25.sp,
-                                    fontWeight: FontWeight.bold),
+                              GestureDetector(
+                                onTap: () {
+                                  Get.to(ProfilePage(
+                                      profileUser:
+                                          _userController.currentUser.value));
+                                },
+                                child: Text(
+                                  _userController.currentUser.value.name!
+                                      .toUpperCase(),
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 25.sp,
+                                      fontWeight: FontWeight.bold),
+                                ),
                               ),
                               Row(
                                 children: [

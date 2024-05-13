@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -5,6 +7,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:podcast_app/app_colors.dart';
 import 'package:podcast_app/controllers/podcast_controller.dart';
 import 'package:podcast_app/controllers/user_controller.dart';
@@ -107,8 +110,9 @@ class _PodcastPageState extends State<PodcastPage> {
                                   return child; // Resim yüklendikten sonra gösterilecek widget
                                 } else {
                                   return Center(
-                                      child:
-                                          CircularProgressIndicator()); // Yükleme esnasında gösterilecek widget
+                                      child: CircularProgressIndicator(
+                                    color: AppColor.primaryColor,
+                                  )); // Yükleme esnasında gösterilecek widget
                                 }
                               },
                             ),
@@ -169,6 +173,7 @@ class _PodcastPageState extends State<PodcastPage> {
                           onTap: () async {
                             User user = await _userController
                                 .getPodcastOwnerUser(widget.podcast.user!.id!);
+
                             Get.to(() => ProfilePage(
                                   profileUser: user,
                                 ));
