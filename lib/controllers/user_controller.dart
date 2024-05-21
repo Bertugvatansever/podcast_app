@@ -30,11 +30,14 @@ class UserController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    getcurrentUser();
+    await getcurrentUser();
     await getMyProfilePhotoLocalDb();
-    if (profilePhotoFile.value != "") {
+    print(profilePhotoFile.value);
+    if (profilePhotoFile.value.path != "") {
       isProfilePhoto.value = true;
-    } else {}
+    } else {
+      await checkNewDevice();
+    }
   }
 
   Future<bool> saveRegisterUser(
@@ -105,8 +108,11 @@ class UserController extends GetxController {
   }
 
   Future<void> getMyProfilePhotoLocalDb() async {
-    String localProfilePhoto = await _localDbService.getMyProfilePhoto();
-    profilePhotoFile.value = File(localProfilePhoto);
+    String? localProfilePhoto = await _localDbService.getMyProfilePhoto();
+    if (localProfilePhoto != null) {
+      profilePhotoFile.value = File(localProfilePhoto);
+    }
+
     print(profilePhotoFile.value.path);
   }
 
@@ -114,5 +120,23 @@ class UserController extends GetxController {
       String userId, bool nameChanged, bool surnameChanged) async {
     await _userService.changeNameSurname(
         newName, newSurName, userId, nameChanged, surnameChanged);
+  }
+
+  Future<void> checkNewDevice() async {
+    try {
+      print("currentUser ${currentUser.value.id}");
+      String? _path =
+          await _userService.getMyProfilePhotoFb(currentUser.value.id!);
+      if (_path!.isNotEmpty) {
+        await _localDbService.saveProfilePhotoLocalDb(_path);
+        isProfilePhoto.value = true;
+        profilePhotoFile.value = File(_path);
+      } else {
+        isProfilePhoto.value = false;
+      }
+    } catch (e) {
+      print(
+          "profil fotoğrafı veritabanına kaydedilirken hata oluştu : ${e.toString()}");
+    }
   }
 }

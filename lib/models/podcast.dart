@@ -19,7 +19,7 @@ class Podcast {
   String? rating;
   User? user;
   List<Comment>? comments;
-  List<Episode>? episodes;
+  List<String>? episodes;
 
   Podcast(
       {required this.id,
@@ -34,26 +34,22 @@ class Podcast {
       required this.episodes});
 
   factory Podcast.fromJson(Map<String, dynamic> json) => Podcast(
-        id: json["podcastid"],
-        name: json["podcastname"],
-        category:
-            (json["podcastcategory"] as List).map((e) => e.toString()).toList(),
-        photo: json["podcastimage"],
-        about: json["podcastabout"],
-        createdTime: json["podcastcreatedtime"],
-        rating: json["podcastrating"],
-        user: User.fromJson(json["podcastuser"]),
-        comments: json["podcastcomments"] == null
-            ? []
-            : (json["podcastcomments"] as List)
-                .map((e) => Comment.fromJson(e.toJson()))
-                .toList(),
-        episodes: json["podcastepisodes"] == null
-            ? []
-            : (json["podcastepisodes"] as List)
-                .map((e) => Episode.fromJson(e.toJson()))
-                .toList(),
-      );
+      id: json["podcastid"],
+      name: json["podcastname"],
+      category:
+          (json["podcastcategory"] as List).map((e) => e.toString()).toList(),
+      photo: json["podcastimage"],
+      about: json["podcastabout"],
+      createdTime: json["podcastcreatedtime"],
+      rating: json["podcastrating"],
+      user: User.fromJson(json["podcastuser"]),
+      comments: json["podcastcomments"] == null
+          ? []
+          : (json["podcastcomments"] as List)
+              .map((e) => Comment.fromJson(e.toJson()))
+              .toList(),
+      episodes:
+          (json["podcastcategory"] as List).map((e) => e.toString()).toList());
 
   Map<String, dynamic> toJson() => {
         "podcastid": id,
@@ -65,6 +61,6 @@ class Podcast {
         "podcastrating": rating,
         "podcastuser": user?.toJson(),
         "podcastcomments": comments?.map((e) => e.toJson()).toList(),
-        "podcastepisodes": episodes?.map((e) => e.toJson()).toList(),
+        "podcastepisodes": episodes
       };
 }

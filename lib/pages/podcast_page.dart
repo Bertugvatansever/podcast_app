@@ -37,7 +37,7 @@ class _PodcastPageState extends State<PodcastPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _podcastController.getContinueListeningPodcastEpisodes(widget.podcast.id!);
+    _podcastController.getPodcastEpisodes(widget.podcast.id!);
   }
 
   @override
@@ -448,12 +448,12 @@ class _PodcastPageState extends State<PodcastPage> {
                                   .continuePodcastEpisodeList[index].file);
                           print(_podcastController.audioPlayer.duration);
                           Get.to(() => PodcastListenPage(
-                                episode: _podcastController
-                                    .continuePodcastEpisodeList[index],
-                                podcastOwner:
-                                    "${widget.podcast.user!.name!} ${widget.podcast.user!.surName!}",
-                                podcastEpisodeName: _podcastController
-                                    .continuePodcastEpisodeList[index].name,
+                                episodeId: _podcastController
+                                    .continuePodcastEpisodeList[index]
+                                    .episodeId,
+                                podcastId: _podcastController
+                                    .continuePodcastEpisodeList[index]
+                                    .podcastId,
                               ));
                         },
                         child: Padding(

@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:podcast_app/models/episode.dart';
+import 'package:podcast_app/models/listening_podcast.dart';
 import 'package:podcast_app/models/podcast.dart';
 import 'package:podcast_app/models/user.dart';
 
@@ -56,6 +57,7 @@ class PodcastService {
         'podcastname': podcastName,
         'podcastcategory': categoriesMap.keys,
         'podcastabout': podcastAbout,
+        'podcastepisodes': episodeName,
         'podcastimage': podcastImagePath,
         'podcastid': podcastId,
         'podcastuser': {
@@ -78,7 +80,8 @@ class PodcastService {
         'episodeid': episodeId,
         'episodename': episodeName,
         'podcastname': podcastName,
-        'episodeabout': episodeAbout
+        'episodeabout': episodeAbout,
+        'podcastid': podcastId
       });
       return true;
     } catch (e) {
@@ -87,26 +90,34 @@ class PodcastService {
     }
   }
 
-  Future<List<Podcast>?> getContinueListeningPodcast() async {
-    List<Podcast> listeningPodcasts = [];
-    // try {
-    CollectionReference collectionReference =
-        FirebaseFirestore.instance.collection("podcasts");
-    QuerySnapshot querySnapshot = await collectionReference.get();
-    querySnapshot.docs.forEach((element) {
-      Podcast podcast =
-          Podcast.fromJson(element.data() as Map<String, dynamic>);
-      listeningPodcasts.add(podcast);
+  Future<List<ListeningPodcast>?> getContinueListeningPodcast(
+      String userId) async {
+    List<ListeningPodcast> listeningPodcasts = [];
+    CollectionReference userReference =
+        FirebaseFirestore.instance.collection("users");
+    QuerySnapshot querySnapshot =
+        await userReference.doc(userId).collection("listenPodcasts").get();
+    querySnapshot.docs.map((doc) {
+      ListeningPodcast listeningPodcast =
+          ListeningPodcast.fromJson(doc.data() as Map<String, dynamic>);
+      listeningPodcasts.add(listeningPodcast);
     });
 
     return listeningPodcasts;
-    // } catch (e) {
-    //   print(e.toString());
-    // }
   }
 
-  Future<List<Episode>> getContinueListeningPodcastEpisodes(
-      String podcastId) async {
+  Future<void> setContinueListeningPodcast(
+      String userId, ListeningPodcast listeningPodcast) async {
+    CollectionReference collectionReference =
+        FirebaseFirestore.instance.collection('users');
+    await collectionReference
+        .doc(userId)
+        .collection("listenPodcasts")
+        .doc(listeningPodcast.podcastId)
+        .set(listeningPodcast.toJson());
+  }
+
+  Future<List<Episode>> getPodcastEpisodes(String podcastId) async {
     List<Episode> episodeList = [];
     CollectionReference collectionReference = FirebaseFirestore.instance
         .collection("podcasts")
@@ -164,6 +175,9 @@ class PodcastService {
     try {
       CollectionReference collectionReference =
           FirebaseFirestore.instance.collection("podcasts");
+      collectionReference.doc(podcastId).update({
+        "podcastepisodes": FieldValue.arrayUnion([episodeName])
+      });
       String episodeId =
           collectionReference.doc(podcastId).collection('episodes').doc().id;
       collectionReference
@@ -177,7 +191,8 @@ class PodcastService {
         'episodeid': episodeId,
         'episodeimage': imagePath,
         'episodename': episodeName,
-        'podcastname': podcastName
+        'podcastname': podcastName,
+        'podcastid': podcastId
       });
       return true;
     } catch (e) {
@@ -234,6 +249,127 @@ class PodcastService {
       return podcastFavouriteList;
     } else {
       return podcastFavouriteList;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getAllPodcasts(
+      List<Podcast> podcastList, DocumentSnapshot? lastDocument,
+      {String? categoryName}) async {
+    List<Podcast> allPodcasts = [];
+    QuerySnapshot querySnapshot;
+    if (podcastList.isEmpty) {
+      CollectionReference podcastReference =
+          FirebaseFirestore.instance.collection("podcasts");
+      if (categoryName != null && categoryName.isNotEmpty) {
+        querySnapshot = await podcastReference
+            .orderBy("podcastcreatedtime")
+            .limit(2)
+            .where("podcastcategory", arrayContains: categoryName)
+            .get();
+      } else {
+        querySnapshot =
+            await podcastReference.orderBy("podcastcreatedtime").limit(2).get();
+      }
+      if (querySnapshot.docs.isNotEmpty) {
+        bool emptyPodcast = false;
+        lastDocument = querySnapshot.docs.last;
+        print(lastDocument);
+        querySnapshot.docs.forEach((element) {
+          Podcast podcast =
+              Podcast.fromJson(element.data() as Map<String, dynamic>);
+          allPodcasts.add(podcast);
+        });
+        bool isLoading = false;
+
+        return {
+          "lastDocument": lastDocument,
+          "list": allPodcasts,
+          "isLoading": isLoading,
+          "emptyPodcast": emptyPodcast
+        };
+      }
+    } else {
+      QuerySnapshot querySnapshot;
+      CollectionReference podcastReference =
+          FirebaseFirestore.instance.collection("podcasts");
+      if (categoryName != null && categoryName.isNotEmpty) {
+        querySnapshot = await podcastReference
+            .orderBy("podcastcreatedtime")
+            .startAfterDocument(lastDocument!)
+            .limit(2)
+            .where("podcastcategory", arrayContains: categoryName)
+            .get();
+      } else {
+        querySnapshot = await podcastReference
+            .orderBy("podcastcreatedtime")
+            .startAfterDocument(lastDocument!)
+            .limit(2)
+            .get();
+      }
+
+      if (querySnapshot.docs.isEmpty) {
+        bool emptyPodcast = true;
+        return {"emptyPodcast": emptyPodcast};
+      } else {
+        lastDocument = querySnapshot.docs.last;
+        querySnapshot.docs.forEach((element) {
+          Podcast podcast =
+              Podcast.fromJson(element.data() as Map<String, dynamic>);
+          allPodcasts.add(podcast);
+        });
+        bool emptyPodcast = false;
+        bool isLoading = false;
+        return {
+          "lastDocument": lastDocument,
+          "list": allPodcasts,
+          "isLoading": isLoading,
+          "emptyPodcast": emptyPodcast
+        };
+      }
+    }
+  }
+
+//TODO Adı GetEpisodebyId olarak değişcek
+  Future<ListeningPodcast> getPodcastById(
+      String podcastId, String episodeId, String userId) async {
+    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+        .collection("podcasts")
+        .doc(podcastId)
+        .collection("episodes")
+        .doc(episodeId)
+        .get();
+
+    Episode episode =
+        Episode.fromJson(documentSnapshot.data() as Map<String, dynamic>);
+    ListeningPodcast listeningPodcast = ListeningPodcast(
+        podcastId: episode.podcastId,
+        podcastEpisodeId: episode.episodeId,
+        uri: episode.file,
+        podcastName: episode.podcastName,
+        podcastOwner: episode.name,
+        podcastEpisodePhoto: episode.episodeImage,
+        podcastEpisodeAbout: episode.episodeAbout,
+        podcastEpisodeName: episode.name,
+        listeningDuration: 5);
+    return listeningPodcast;
+  }
+
+  Future<ListeningPodcast?> getPodcastByIdFromListenPodcasts(
+      String podcastId, String episodeId, String userId) async {
+    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(userId)
+        .collection("listenPodcasts")
+        .doc(podcastId)
+        .get();
+
+    if (documentSnapshot.data() != null) {
+      ListeningPodcast listeningPodcast = ListeningPodcast.fromJson(
+          documentSnapshot.data() as Map<String, dynamic>);
+
+      return listeningPodcast;
+    } else {
+      return null;
     }
   }
 }

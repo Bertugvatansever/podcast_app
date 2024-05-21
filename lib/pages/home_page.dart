@@ -10,6 +10,7 @@ import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:podcast_app/app_colors.dart';
 import 'package:podcast_app/controllers/podcast_controller.dart';
 import 'package:podcast_app/controllers/user_controller.dart';
+import 'package:podcast_app/pages/podcast_listen_page.dart';
 import 'package:podcast_app/pages/podcast_page.dart';
 import 'package:podcast_app/widgets/all_podcast_widget.dart';
 
@@ -23,9 +24,15 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   UserController _userController = Get.find();
   PodcastController _podcastController = Get.find();
+  ScrollController _scrollController = ScrollController();
   bool isPhotosLoaded = false;
   Timer? timer;
   PageController _pageViewController = PageController(initialPage: 0);
+  int selectedindex = 0;
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
+  bool isPageEnd = false;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -39,7 +46,8 @@ class _HomePageState extends State<HomePage> {
             duration: Duration(milliseconds: 500), curve: Curves.linear);
       }
     });
-    _podcastController.getContinueListeningPodcast();
+    _podcastController
+        .getContinueListeningPodcast(_userController.currentUser.value.id!);
   }
 
   @override
@@ -50,6 +58,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    print(_podcastController.continuePodcastList.length);
     return DefaultTabController(
       length: 3,
       initialIndex: 0,
@@ -110,6 +119,7 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Obx(
                   () => SingleChildScrollView(
+                    controller: _scrollController,
                     // TODO WIDGETS OF TABBAR
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -126,6 +136,11 @@ class _HomePageState extends State<HomePage> {
                             controller: _pageViewController,
                             scrollDirection: Axis.horizontal,
                             itemCount: 5,
+                            onPageChanged: (value) {
+                              setState(() {
+                                selectedindex = value;
+                              });
+                            },
                             itemBuilder: (BuildContext context, int index) {
                               return Container(
                                 width: 400.w,
@@ -248,6 +263,9 @@ class _HomePageState extends State<HomePage> {
                             },
                           ),
                         ),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: _buildPageIndicator()),
                         SizedBox(
                           height: 25.h,
                         ),
@@ -287,16 +305,20 @@ class _HomePageState extends State<HomePage> {
                                   children: [
                                     InkWell(
                                       onTap: () {
-                                        Get.to(() => PodcastPage(
-                                              podcast: _podcastController
-                                                  .continuePodcastList[index],
+                                        Get.to(() => PodcastListenPage(
+                                              episodeId: _podcastController
+                                                  .continuePodcastList[index]
+                                                  .podcastEpisodeId!,
+                                              podcastId: _podcastController
+                                                  .continuePodcastList[index]
+                                                  .podcastId!,
                                             ));
                                       },
                                       child: Column(
                                         children: [
                                           Container(
-                                            width: 165.w,
-                                            height: 165.h,
+                                            width: 167.w,
+                                            height: 167.h,
                                             decoration: BoxDecoration(
                                                 borderRadius:
                                                     BorderRadius.circular(15),
@@ -305,12 +327,12 @@ class _HomePageState extends State<HomePage> {
                                               borderRadius:
                                                   BorderRadius.circular(15),
                                               child: Image.network(
-                                                width: 165.w,
-                                                height: 165.h,
+                                                width: 167.w,
+                                                height: 167.h,
                                                 _podcastController
                                                         .continuePodcastList[
                                                             index]
-                                                        .photo ??
+                                                        .podcastEpisodePhoto ??
                                                     "",
                                                 fit: BoxFit.cover,
                                                 loadingBuilder: (context, child,
@@ -337,7 +359,7 @@ class _HomePageState extends State<HomePage> {
                                                 _podcastController
                                                         .continuePodcastList[
                                                             index]
-                                                        .name ??
+                                                        .podcastName ??
                                                     "",
                                                 style: TextStyle(
                                                     color: Colors.white,
@@ -353,7 +375,7 @@ class _HomePageState extends State<HomePage> {
                                             width: 160.w,
                                             child: Center(
                                               child: Text(
-                                                '${_podcastController.continuePodcastList[index].user?.name ?? ""} ${_podcastController.continuePodcastList[index].user?.surName ?? ""}',
+                                                '${_podcastController.continuePodcastList[index].podcastOwner} ',
                                                 style: TextStyle(
                                                   color: Colors.grey,
                                                   fontSize: 14.sp,
@@ -374,7 +396,245 @@ class _HomePageState extends State<HomePage> {
                               },
                             ),
                           ),
-                        )
+                        ),
+                        Row(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(
+                                left: 23.w,
+                              ),
+                              child: Text(
+                                "My Favourites",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20.sp),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 188.w,
+                            ),
+                            IconButton(
+                              onPressed: () {},
+                              icon: FaIcon(FontAwesomeIcons.arrowRight),
+                              color: Colors.white,
+                            )
+                          ],
+                        ),
+                        SizedBox(
+                          height: 250.h,
+                          width: ScreenUtil().screenWidth,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 22.w),
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount:
+                                  _podcastController.continuePodcastList.length,
+                              itemBuilder: (context, index) {
+                                return Row(
+                                  children: [
+                                    InkWell(
+                                      onTap: () {},
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            width: 167.w,
+                                            height: 167.h,
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                                color: Colors.grey.shade900),
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                              child: Image.network(
+                                                width: 167.w,
+                                                height: 167.h,
+                                                _podcastController
+                                                        .continuePodcastList[
+                                                            index]
+                                                        .podcastEpisodePhoto ??
+                                                    "",
+                                                fit: BoxFit.cover,
+                                                loadingBuilder: (context, child,
+                                                    loadingProgress) {
+                                                  if (loadingProgress == null) {
+                                                    return child; // Resim yüklendikten sonra gösterilecek widget
+                                                  } else {
+                                                    return Center(
+                                                        child:
+                                                            CircularProgressIndicator(
+                                                      color:
+                                                          AppColor.primaryColor,
+                                                    )); // Yükleme esnasında gösterilecek widget
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(height: 10.h),
+                                          SizedBox(
+                                            width: 160.w,
+                                            child: Center(
+                                              child: Text(
+                                                _podcastController
+                                                        .continuePodcastList[
+                                                            index]
+                                                        .podcastEpisodeName ??
+                                                    "",
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 20.sp,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 2,
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 160.w,
+                                            child: Center(
+                                              child: Text(
+                                                '${_podcastController.continuePodcastList[index].podcastOwner}',
+                                                style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 14.sp,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 2,
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 20.w,
+                                    )
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(
+                                left: 23.w,
+                              ),
+                              child: Text(
+                                "Podcast I Follow",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20.sp),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 160.w,
+                            ),
+                            IconButton(
+                              onPressed: () {},
+                              icon: FaIcon(FontAwesomeIcons.arrowRight),
+                              color: Colors.white,
+                            )
+                          ],
+                        ),
+                        SizedBox(
+                          height: 250.h,
+                          width: ScreenUtil().screenWidth,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 22.w),
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount:
+                                  _podcastController.continuePodcastList.length,
+                              itemBuilder: (context, index) {
+                                return Row(
+                                  children: [
+                                    InkWell(
+                                      onTap: () {},
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            width: 167.w,
+                                            height: 167.h,
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                                color: Colors.grey.shade900),
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                              child: Image.network(
+                                                width: 167.w,
+                                                height: 167.h,
+                                                _podcastController
+                                                        .continuePodcastList[
+                                                            index]
+                                                        .podcastEpisodePhoto ??
+                                                    "",
+                                                fit: BoxFit.cover,
+                                                loadingBuilder: (context, child,
+                                                    loadingProgress) {
+                                                  if (loadingProgress == null) {
+                                                    return child; // Resim yüklendikten sonra gösterilecek widget
+                                                  } else {
+                                                    return Center(
+                                                        child:
+                                                            CircularProgressIndicator(
+                                                      color:
+                                                          AppColor.primaryColor,
+                                                    )); // Yükleme esnasında gösterilecek widget
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(height: 10.h),
+                                          SizedBox(
+                                            width: 160.w,
+                                            child: Center(
+                                              child: Text(
+                                                _podcastController
+                                                        .continuePodcastList[
+                                                            index]
+                                                        .podcastEpisodeName ??
+                                                    "",
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 20.sp,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 2,
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 160.w,
+                                            child: Center(
+                                              child: Text(
+                                                '${_podcastController.continuePodcastList[index].podcastOwner} ',
+                                                style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 14.sp,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 2,
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 20.w,
+                                    )
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -384,6 +644,45 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  List<Widget> _buildPageIndicator() {
+    List<Widget> list = [];
+    for (int i = 0; i < 5; i++) {
+      list.add(i == selectedindex ? _indicator(true) : _indicator(false));
+    }
+    return list;
+  }
+
+  Widget _indicator(bool isActive) {
+    return Container(
+      height: 10.h,
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 150),
+        margin: EdgeInsets.symmetric(horizontal: 4.0.w),
+        height: isActive ? 10.h : 8.0.h,
+        width: isActive ? 12.w : 8.0.w,
+        decoration: BoxDecoration(
+          boxShadow: [
+            isActive
+                ? BoxShadow(
+                    color: AppColor.primaryColor.withOpacity(0.7),
+                    blurRadius: 4.0,
+                    spreadRadius: 1.0,
+                    offset: Offset(
+                      0.0,
+                      0.0,
+                    ),
+                  )
+                : BoxShadow(
+                    color: Colors.transparent,
+                  )
+          ],
+          shape: BoxShape.circle,
+          color: isActive ? AppColor.primaryColor : Color(0XFFEAEAEA),
+        ),
       ),
     );
   }

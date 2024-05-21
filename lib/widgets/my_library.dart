@@ -196,31 +196,12 @@ class _MyLibraryState extends State<MyLibrary> {
                                   .isActiveDownloadListen.value) {
                                 _podcastController.audioPlayer.setFilePath(
                                     _podcastController
-                                        .downloadsList[index].location!);
+                                        .downloadsList[index].uri!);
                                 Get.to(PodcastListenPage(
-                                  podcastOwner: _podcastController
-                                      .downloadsList[index].podcastOwner!,
-                                  podcastEpisodeName: _podcastController
-                                      .downloadsList[index].podcastEpisodeName!,
-                                  downloadPodcast: Download(
-                                      id: _podcastController
-                                          .downloadsList[index].id,
-                                      location: _podcastController
-                                          .downloadsList[index].location,
-                                      podcastName: _podcastController
-                                          .downloadsList[index].podcastName,
-                                      podcastOwner: _podcastController
-                                          .downloadsList[index].podcastOwner,
-                                      podcastEpisodePhoto: _podcastController
-                                          .downloadsList[index]
-                                          .podcastEpisodePhoto,
-                                      podcastEpisodeAbout: _podcastController
-                                          .downloadsList[index]
-                                          .podcastEpisodeAbout,
-                                      podcastEpisodeName: _podcastController
-                                          .downloadsList[index]
-                                          .podcastEpisodeName),
-                                ));
+                                    episodeId: _podcastController
+                                        .downloadsList[index].podcastEpisodeId!,
+                                    podcastId: _podcastController
+                                        .downloadsList[index].podcastId!));
                               } else {
                                 Get.to(
                                     PodcastPage(podcast: podcastList[index]));
@@ -237,40 +218,14 @@ class _MyLibraryState extends State<MyLibrary> {
                                           .isActiveDownloadListen.value) {
                                         _podcastController.audioPlayer
                                             .setFilePath(_podcastController
-                                                .downloadsList[index]
-                                                .location!);
+                                                .downloadsList[index].uri!);
                                         Get.to(PodcastListenPage(
-                                          podcastOwner: _podcastController
-                                              .downloadsList[index]
-                                              .podcastOwner!,
-                                          podcastEpisodeName: _podcastController
-                                              .downloadsList[index]
-                                              .podcastEpisodeName!,
-                                          downloadPodcast: Download(
-                                              id: _podcastController
-                                                  .downloadsList[index].id,
-                                              location: _podcastController
-                                                  .downloadsList[index]
-                                                  .location,
-                                              podcastName: _podcastController
-                                                  .downloadsList[index]
-                                                  .podcastName,
-                                              podcastOwner: _podcastController
-                                                  .downloadsList[index]
-                                                  .podcastOwner,
-                                              podcastEpisodePhoto:
-                                                  _podcastController
-                                                      .downloadsList[index]
-                                                      .podcastEpisodePhoto,
-                                              podcastEpisodeAbout:
-                                                  _podcastController
-                                                      .downloadsList[index]
-                                                      .podcastEpisodeAbout,
-                                              podcastEpisodeName:
-                                                  _podcastController
-                                                      .downloadsList[index]
-                                                      .podcastEpisodeName),
-                                        ));
+                                            episodeId: _podcastController
+                                                .downloadsList[index]
+                                                .podcastEpisodeId!,
+                                            podcastId: _podcastController
+                                                .downloadsList[index]
+                                                .podcastId!));
                                       } else {
                                         Get.to(PodcastPage(
                                             podcast: podcastList[index]));
@@ -479,11 +434,11 @@ class _MyLibraryState extends State<MyLibrary> {
                                                             _podcastController
                                                                 .downloadsList[
                                                                     index]
-                                                                .id!,
+                                                                .podcastEpisodeId!,
                                                             _podcastController
                                                                 .downloadsList[
                                                                     index]
-                                                                .location!,
+                                                                .uri!,
                                                             _podcastController
                                                                 .downloadsList[
                                                                     index]

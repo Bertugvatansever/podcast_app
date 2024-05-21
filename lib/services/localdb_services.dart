@@ -2,42 +2,27 @@ import 'dart:io';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:podcast_app/models/download.dart';
+import 'package:podcast_app/models/listening_podcast.dart';
 import 'package:uuid/uuid.dart';
 
 class LocalDbService {
   Future<void> initializeLocalDb() async {
     await Hive.initFlutter();
-    Hive.registerAdapter(DownloadAdapter());
-    await Hive.openBox<Download>('Downloads');
+    await Hive.openBox('Downloads');
     await Hive.openBox<String>('ProfilePhotos');
   }
 
-  Future<void> saveDownloadPodcast(
-      String location,
-      String podcastName,
-      String podcastOwner,
-      String podcastEpisodePhoto,
-      String podcastEpisodeAbout,
-      String podcastEpisodeName) async {
-    Download downloads = Download(
-        location: location,
-        podcastName: podcastName,
-        podcastOwner: podcastOwner,
-        podcastEpisodePhoto: podcastEpisodePhoto,
-        podcastEpisodeAbout: podcastEpisodeAbout,
-        podcastEpisodeName: podcastEpisodeName);
-    Box<Download> downloadsBox = Hive.box<Download>("Downloads");
-    String id = Uuid().v4();
-    downloads.id = id;
-    await downloadsBox.put(id, downloads);
+  Future<void> saveDownloadPodcast(ListeningPodcast listeningPodcast) async {
+    Box downloadsBox = Hive.box("Downloads");
+
+    await downloadsBox.put(
+        listeningPodcast.podcastEpisodeId, listeningPodcast.toJson());
   }
 
-  Future<String> getMyProfilePhoto() async {
+  Future<String?> getMyProfilePhoto() async {
     Box<String> profilePhotoBox = Hive.box<String>("ProfilePhotos");
-    List<String> photoList = profilePhotoBox.values.toList();
-    print("photolistlength" + photoList[0]);
-    String profilePhoto = photoList.isNotEmpty ? photoList[0] : '';
-    print("profilfotografıpath" + profilePhoto);
+    String id = "userId";
+    String? profilePhoto = profilePhotoBox.get(id);
     return profilePhoto;
   }
 
@@ -73,10 +58,24 @@ class LocalDbService {
     }
   }
 
-  Future<List<Download>> getDownloads() async {
-    List<Download> downloadsList = [];
-    Box<Download> downloadsBox = Hive.box<Download>("Downloads");
-    downloadsList = downloadsBox.values.toList();
+  Future<List<ListeningPodcast>> getDownloads() async {
+    List<ListeningPodcast> downloadsList = [];
+    Box downloadsBox = Hive.box("Downloads");
+
+    downloadsBox.values.forEach((e) {
+      ListeningPodcast listeningPodcast =
+          ListeningPodcast.fromJson(e as Map<String, dynamic>);
+      downloadsList.add(listeningPodcast);
+    });
+
     return downloadsList;
+  }
+
+  ListeningPodcast getPodcastById(String episodeId) {
+    Box downloadsBox = Hive.box("Downloads");
+    var result = downloadsBox.get(episodeId);
+    ListeningPodcast listeningPodcast =
+        ListeningPodcast.fromJson(result as Map<String, dynamic>);
+    return listeningPodcast;
   }
 }

@@ -8,4 +8,5 @@ class AppColor {
   static Color textFieldColor = Colors.grey.shade800;
   static Color textFieldTextcolor = Colors.grey.shade700;
   static Color white = Colors.white;
+  //FFx14DC94
 }

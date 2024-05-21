@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -7,6 +8,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:podcast_app/models/download.dart';
 import 'package:podcast_app/models/episode.dart';
+import 'package:podcast_app/models/listening_podcast.dart';
 import 'package:podcast_app/models/podcast.dart';
 import 'package:podcast_app/models/user.dart';
 import 'package:podcast_app/services/localdb_services.dart';
@@ -28,6 +30,9 @@ class PodcastController extends GetxController {
   Rx<bool> deleteDownloadBool = false.obs;
   Rx<bool> isDown = false.obs;
   Rx<bool> podcastsPage = false.obs;
+  Rx<bool> listClear = false.obs;
+  Rx<bool> isLoading = false.obs;
+  Rx<bool> emptyPodcast = false.obs;
   Rx<String> currentPodcastFilePath = "".obs;
   Rx<String> podcastName = "".obs;
   Rx<String> downloadFilePath = "".obs;
@@ -36,16 +41,16 @@ class PodcastController extends GetxController {
   Rx<String> podcastAbout = "".obs;
   Rx<String> episodeName = "".obs;
   Rx<String> episodeAbout = "".obs;
-  RxList<Podcast> continuePodcastList = <Podcast>[].obs;
+  RxList<ListeningPodcast> continuePodcastList = <ListeningPodcast>[].obs;
   RxList<Episode> continuePodcastEpisodeList = <Episode>[].obs;
   RxList<Podcast> myPodcasts = <Podcast>[].obs;
   RxList<Podcast> favouriteList = <Podcast>[].obs;
   RxList<Podcast> profilePodcastList = <Podcast>[].obs;
-  RxList<Download> downloadsList = <Download>[].obs;
+  RxList<Podcast> allPodcasts = <Podcast>[].obs;
+  RxList<ListeningPodcast> downloadsList = <ListeningPodcast>[].obs;
   Rx<File> podcastImageFile = File("").obs;
-
   Rx<File> podcastEpisodeImageFile = File("").obs;
-
+  DocumentSnapshot? lastDocument;
   Duration recordTime = Duration.zero;
   String recordTimeString = "";
   late Timer timer;
@@ -172,15 +177,21 @@ class PodcastController extends GetxController {
     return confirm;
   }
 
-  Future<void> getContinueListeningPodcast() async {
-    List<Podcast>? _continuePodcasts = [];
-    _continuePodcasts = await _podcastService.getContinueListeningPodcast();
+  Future<void> getContinueListeningPodcast(String userId) async {
+    List<ListeningPodcast>? _continuePodcasts = [];
+    _continuePodcasts =
+        await _podcastService.getContinueListeningPodcast(userId);
     continuePodcastList.addAll(_continuePodcasts!);
   }
 
-  Future<void> getContinueListeningPodcastEpisodes(String podcastId) async {
+  Future<void> setContinueListeningPodcast(
+      String userId, ListeningPodcast listeningPodcast) async {
+    await _podcastService.setContinueListeningPodcast(userId, listeningPodcast);
+  }
+
+  Future<void> getPodcastEpisodes(String podcastId) async {
     List<Episode> episodesToAdd =
-        await _podcastService.getContinueListeningPodcastEpisodes(podcastId);
+        await _podcastService.getPodcastEpisodes(podcastId);
     continuePodcastEpisodeList.clear();
     continuePodcastEpisodeList.addAll(episodesToAdd);
     print(continuePodcastEpisodeList.length);
@@ -196,7 +207,7 @@ class PodcastController extends GetxController {
   }
 
   Future<bool> downloadPodcastFile(
-      var fileUrl, var photoUrl, String fileName) async {
+      var fileUrl, var photoUrl, String episodeId) async {
     final response = await http.get(Uri.parse(fileUrl));
     final responsePhoto = await http.get(Uri.parse(photoUrl));
 
@@ -205,8 +216,8 @@ class PodcastController extends GetxController {
       final photoBytes = responsePhoto.bodyBytes;
       final directory = await getDownloadsDirectory();
       final filePath =
-          '${directory!.path}/${fileName}.mp3'; // Kaydedilecek dosyanın yolunu belirle
-      final photoPath = '${directory!.path}/${fileName}.jpeg';
+          '${directory!.path}/${episodeId}.mp3'; // Kaydedilecek dosyanın yolunu belirle
+      final photoPath = '${directory!.path}/${episodeId}.jpeg';
       File file = File(filePath.trim());
       await file.writeAsBytes(bytes); // Dosyayı cihaza kaydet
       file = File(photoPath.trim());
@@ -232,20 +243,8 @@ class PodcastController extends GetxController {
     favouriteList.value = await _podcastService.getFavouritePodcasts(userId);
   }
 
-  Future<void> downloadPodcastLocalDb(
-      String location,
-      String podcastName,
-      String podcastOwner,
-      String podcastEpisodePhoto,
-      String podcastEpisodeAbout,
-      String podcastEpisodeName) async {
-    await _localDbService.saveDownloadPodcast(
-        location,
-        podcastName,
-        podcastOwner,
-        podcastEpisodePhoto,
-        podcastEpisodeAbout,
-        podcastEpisodeName);
+  Future<void> downloadPodcastLocalDb(ListeningPodcast listeningPodcast) async {
+    await _localDbService.saveDownloadPodcast(listeningPodcast);
   }
 
   Future<void> getDownloadsPodcast() async {
@@ -272,8 +271,46 @@ class PodcastController extends GetxController {
     }
   }
 
-  Future<void> checkPodcastDownloaded(String episodeName) async {
+  Future<void> checkPodcastDownloaded(String episodeId) async {
     Directory? directory = await getDownloadsDirectory();
-    checkFileExistence('${directory!.path}/${episodeName}.mp3');
+    checkFileExistence('${directory!.path}/${episodeId}.mp3');
+  }
+
+  Future<void> getAllPodcasts({String? categoryName}) async {
+    if (listClear.value) {
+      allPodcasts.clear();
+    }
+    Map<String, dynamic>? result = await _podcastService
+        .getAllPodcasts(allPodcasts, lastDocument, categoryName: categoryName);
+    if (result?["emptyPodcast"] == false) {
+      allPodcasts.addAll(result?["list"]);
+      lastDocument = result?["lastDocument"];
+      isLoading.value = result?["isLoading"];
+    }
+
+    if (result?["emptyPodcast"] != null) {
+      emptyPodcast.value = result?["emptyPodcast"];
+    }
+  }
+
+  Future<ListeningPodcast?> getPodcastById(
+      String podcastId, String episodeId, String userId) async {
+    await checkPodcastDownloaded(episodeId);
+    if (isDownloadedPodcast.value) {
+      ListeningPodcast listeningPodcast =
+          _localDbService.getPodcastById(episodeId);
+      return listeningPodcast;
+    } else {
+      ListeningPodcast? listeningPodcastFromUser = await _podcastService
+          .getPodcastByIdFromListenPodcasts(podcastId, episodeId, userId);
+
+      if (listeningPodcastFromUser == null) {
+        ListeningPodcast listeningPodcast =
+            await _podcastService.getPodcastById(podcastId, episodeId, userId);
+        return listeningPodcast;
+      } else {
+        return listeningPodcastFromUser;
+      }
+    }
   }
 }

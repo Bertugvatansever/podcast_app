@@ -1,9 +1,10 @@
 import 'dart:io';
-
+import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:podcast_app/models/user.dart';
 
 class UserService {
@@ -78,6 +79,31 @@ class UserService {
     }
     if (surnameChanged) {
       await userReference.doc(userId).update({"surname": newSurName});
+    }
+  }
+
+  Future<String?> getMyProfilePhotoFb(String userId) async {
+    CollectionReference userReference =
+        FirebaseFirestore.instance.collection("users");
+    DocumentSnapshot documentSnapshot = await userReference.doc(userId).get();
+    User _tempUser =
+        User.fromJson(documentSnapshot.data() as Map<String, dynamic>);
+    try {
+      // Dosyayı indir
+      var response = await http.get(Uri.parse(_tempUser.photo!));
+      // İndirme başarılı mı kontrol et
+      if (response.statusCode == 200) {
+        var tempDir = await getDownloadsDirectory();
+        String savePath = '${tempDir!.path}/downloaded_image.jpg';
+        File file = File(savePath);
+        await file.writeAsBytes(response.bodyBytes);
+        print('Dosya indirildi: $savePath');
+        return savePath;
+      } else {
+        print('Dosya indirilemedi, hata kodu: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Dosya indirilemedi: $e');
     }
   }
 }
