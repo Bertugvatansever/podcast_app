@@ -19,6 +19,7 @@ class User {
   String? email;
   int? createdTime;
   List<String>? favourite;
+  Map<String, double>? myRatings;
   User(
       {required this.id,
       required this.name,
@@ -26,7 +27,8 @@ class User {
       required this.photo,
       required this.email,
       required this.createdTime,
-      required this.favourite});
+      required this.favourite,
+      required this.myRatings});
 
   factory User.fromJson(Map<String, dynamic> json) => User(
         id: json["id"],
@@ -38,6 +40,10 @@ class User {
         favourite: json["favourites"] == null
             ? []
             : List<String>.from(json["favourites"]!.map((x) => x)),
+        myRatings: json["myRatings"] == null
+            ? {}
+            : Map<String, double>.from(json["myRatings"]
+                .map((key, value) => MapEntry(key, value.toDouble()))),
       );
   Map<String, dynamic> toJson() => {
         "id": id,

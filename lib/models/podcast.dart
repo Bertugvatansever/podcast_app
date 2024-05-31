@@ -18,7 +18,7 @@ class Podcast {
   int? createdTime;
   String? rating;
   User? user;
-  List<Comment>? comments;
+  List<int>? comments;
   List<String>? episodes;
 
   Podcast(
@@ -30,26 +30,21 @@ class Podcast {
       required this.createdTime,
       required this.rating,
       required this.user,
-      required this.comments,
       required this.episodes});
 
   factory Podcast.fromJson(Map<String, dynamic> json) => Podcast(
-      id: json["podcastid"],
-      name: json["podcastname"],
-      category:
-          (json["podcastcategory"] as List).map((e) => e.toString()).toList(),
-      photo: json["podcastimage"],
-      about: json["podcastabout"],
-      createdTime: json["podcastcreatedtime"],
-      rating: json["podcastrating"],
-      user: User.fromJson(json["podcastuser"]),
-      comments: json["podcastcomments"] == null
-          ? []
-          : (json["podcastcomments"] as List)
-              .map((e) => Comment.fromJson(e.toJson()))
-              .toList(),
-      episodes:
-          (json["podcastcategory"] as List).map((e) => e.toString()).toList());
+        id: json["podcastid"],
+        name: json["podcastname"],
+        category:
+            (json["podcastcategory"] as List).map((e) => e.toString()).toList(),
+        photo: json["podcastimage"],
+        about: json["podcastabout"],
+        createdTime: json["podcastcreatedtime"],
+        rating: json["podcastrating"],
+        user: User.fromJson(json["podcastuser"]),
+        episodes:
+            (json["podcastepisodes"] as List).map((e) => e.toString()).toList(),
+      );
 
   Map<String, dynamic> toJson() => {
         "podcastid": id,
@@ -60,7 +55,6 @@ class Podcast {
         "podcastcreatedTime": createdTime,
         "podcastrating": rating,
         "podcastuser": user?.toJson(),
-        "podcastcomments": comments?.map((e) => e.toJson()).toList(),
         "podcastepisodes": episodes
       };
 }

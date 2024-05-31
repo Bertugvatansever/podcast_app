@@ -119,6 +119,7 @@ class _MyLibraryState extends State<MyLibrary> {
                       favorites = false;
                     });
                     await _podcastController.getDownloadsPodcast();
+                    print(podcastList.length);
                     _podcastController.isActiveDownloadListen.value = true;
                   },
                   child: Container(
@@ -197,6 +198,7 @@ class _MyLibraryState extends State<MyLibrary> {
                                 _podcastController.audioPlayer.setFilePath(
                                     _podcastController
                                         .downloadsList[index].uri!);
+
                                 Get.to(PodcastListenPage(
                                     episodeId: _podcastController
                                         .downloadsList[index].podcastEpisodeId!,
@@ -429,6 +431,16 @@ class _MyLibraryState extends State<MyLibrary> {
                                                                 .id);
                                                     podcastList.removeAt(index);
                                                   } else {
+                                                    print(_podcastController
+                                                        .downloadsList[index]
+                                                        .podcastEpisodeId!);
+                                                    print(_podcastController
+                                                        .downloadsList[index]
+                                                        .uri!);
+                                                    print(_podcastController
+                                                        .downloadsList[index]
+                                                        .podcastEpisodePhoto!);
+
                                                     await _podcastController
                                                         .deleteDownload(
                                                             _podcastController

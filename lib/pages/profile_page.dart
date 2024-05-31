@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:podcast_app/app_colors.dart';
 import 'package:podcast_app/controllers/podcast_controller.dart';
+import 'package:podcast_app/controllers/user_controller.dart';
 import 'package:podcast_app/models/user.dart';
 import 'package:podcast_app/pages/podcast_page.dart';
 
@@ -17,12 +18,30 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   PodcastController _podcastController = Get.find();
+  UserController _userController = Get.find();
   bool isFollow = false;
+  Map<String, String>? followMap;
+  String? podcastCount;
+  bool isLoading = false;
   @override
   void initState() {
-    // TODO: implement initState
+    // TODO: TAKİP EDİP ETMEDİĞİNİ HER GİRİŞTE KONTROL ET.
     super.initState();
+    setState(() {
+      isLoading = true;
+    });
     _podcastController.getProfilePodcasts(widget.profileUser.id!);
+    _userController.calculateFollowCount(widget.profileUser.id!).then((value) {
+      setState(() {
+        followMap = value;
+      });
+    });
+    _userController.calculatePodcastCount(widget.profileUser.id!).then((value) {
+      setState(() {
+        podcastCount = value;
+        isLoading = false;
+      });
+    });
   }
 
   @override
@@ -30,283 +49,312 @@ class _ProfilePageState extends State<ProfilePage> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColor.backgroundColor,
-        body: SingleChildScrollView(
-          child: Container(
-            width: ScreenUtil().screenWidth,
-            child: Column(
-              children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Container(
-                      width: ScreenUtil().screenHeight,
-                      height: 400.h,
-                      child: Image.network(
-                        width: ScreenUtil().screenHeight,
-                        height: 400.h,
-                        widget.profileUser.photo!,
-                        fit: BoxFit.cover,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) {
-                            return child;
-                          } else {
-                            return Center(
-                              child: CircularProgressIndicator(
-                                color: AppColor.primaryColor,
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    ),
-                    Positioned(
-                      bottom: -7.h,
-                      child: Text(
-                        "${widget.profileUser.name} ${widget.profileUser.surName}"
-                            .toUpperCase(),
-                        style: TextStyle(
-                            color: AppColor.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 40.sp),
-                      ),
-                    )
-                  ],
-                ),
-                SizedBox(
-                  height: 10.h,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Column(
-                      children: [
-                        Text(
-                          "1000000",
-                          style: TextStyle(
-                              color: AppColor.white,
-                              fontSize: 17.sp,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          height: 3.h,
-                        ),
-                        Text(
-                          "Takipçi",
-                          style:
-                              TextStyle(color: AppColor.white, fontSize: 17.sp),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Text(
-                          "270",
-                          style: TextStyle(
-                              color: AppColor.white,
-                              fontSize: 17.sp,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          height: 3.h,
-                        ),
-                        Text(
-                          "Takip Edilen",
-                          style:
-                              TextStyle(color: AppColor.white, fontSize: 17.sp),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Text(
-                          "25",
-                          style: TextStyle(
-                              color: AppColor.white,
-                              fontSize: 17.sp,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          height: 3.h,
-                        ),
-                        Text(
-                          "Podcast Sayısı",
-                          style:
-                              TextStyle(color: AppColor.white, fontSize: 17.sp),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-                SizedBox(
-                  height: 15.h,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    IconButton(
-                        onPressed: () {
-                          Get.back();
-                        },
-                        icon: Container(
-                          width: 41.w,
-                          height: 41.h,
-                          decoration: BoxDecoration(
-                              color: AppColor.primaryColor,
-                              shape: BoxShape.circle),
-                          child: Center(
-                            child: FaIcon(
-                              FontAwesomeIcons.backward,
-                              color: AppColor.white,
-                              size: 17,
-                            ),
-                          ),
-                        )),
-                    ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            isFollow = !isFollow;
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColor.primaryColor,
-                            foregroundColor: AppColor.white,
-                            minimumSize: Size(200.w, 35.h)),
-                        child: Text(isFollow ? "Takip ediliyor" : "Takip et")),
-                    IconButton(
-                        onPressed: () {},
-                        icon: Container(
-                          width: 41.w,
-                          height: 41.h,
-                          decoration: BoxDecoration(
-                              color: AppColor.primaryColor,
-                              shape: BoxShape.circle),
-                          child: Center(
-                            child: Icon(
-                              Icons.block_sharp,
-                              color: AppColor.white,
-                              size: 23,
-                            ),
-                          ),
-                        )),
-                  ],
-                ),
-                SizedBox(
-                  height: 15.h,
-                ),
-                Text(
-                  "Podcasts",
-                  style: TextStyle(color: AppColor.white, fontSize: 20.sp),
-                ),
-                SizedBox(
-                  height: 5.h,
-                ),
-                Divider(
-                  thickness: 2,
-                ),
-                SizedBox(
-                  height: 15.h,
-                ),
-                Obx(
-                  () => SizedBox(
-                    width: ScreenUtil().screenWidth,
-                    height: 500.h,
-                    child: ListView.builder(
-                      itemCount: _podcastController.profilePodcastList.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return InkWell(
-                          onTap: () {
-                            Get.to(() => PodcastPage(
-                                podcast: _podcastController
-                                    .profilePodcastList[index]));
-                          },
-                          child: Padding(
-                            padding: EdgeInsets.only(left: 10.w, bottom: 15.h),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  width: 110.w,
-                                  height: 110.h,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(15),
-                                      color: Colors.grey.shade900),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(15),
-                                    child: Image.network(
-                                      width: 110.w,
-                                      height: 110.h,
-                                      _podcastController
-                                          .profilePodcastList[index].photo!,
-                                      fit: BoxFit.cover,
-                                      loadingBuilder:
-                                          (context, child, loadingProgress) {
-                                        if (loadingProgress == null) {
-                                          return child; // Resim yüklendikten sonra gösterilecek widget
-                                        } else {
-                                          return Center(
-                                              child: CircularProgressIndicator(
-                                                  color: AppColor
-                                                      .primaryColor)); // Yükleme esnasında gösterilecek widget
-                                        }
-                                      },
+        body: isLoading
+            ? Center(
+                child: CircularProgressIndicator(
+                color: AppColor.primaryColor,
+              ))
+            : SingleChildScrollView(
+                child: Container(
+                  width: ScreenUtil().screenWidth,
+                  child: Column(
+                    children: [
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Container(
+                            width: ScreenUtil().screenHeight,
+                            height: 400.h,
+                            child: Image.network(
+                              width: ScreenUtil().screenHeight,
+                              height: 400.h,
+                              widget.profileUser.photo!,
+                              fit: BoxFit.cover,
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                if (loadingProgress == null) {
+                                  return child;
+                                } else {
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      color: AppColor.primaryColor,
                                     ),
+                                  );
+                                }
+                              },
+                            ),
+                          ),
+                          Positioned(
+                            bottom: -7.h,
+                            child: Text(
+                              "${widget.profileUser.name} ${widget.profileUser.surName}"
+                                  .toUpperCase(),
+                              style: TextStyle(
+                                  color: AppColor.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 40.sp),
+                            ),
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10.h,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Column(
+                            children: [
+                              Text(
+                                followMap?["followers"] ?? "0",
+                                style: TextStyle(
+                                    color: AppColor.white,
+                                    fontSize: 17.sp,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                height: 3.h,
+                              ),
+                              Text(
+                                "Takipçi",
+                                style: TextStyle(
+                                    color: AppColor.white, fontSize: 17.sp),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                followMap?["follow"] ?? "0",
+                                style: TextStyle(
+                                    color: AppColor.white,
+                                    fontSize: 17.sp,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                height: 3.h,
+                              ),
+                              Text(
+                                "Takip Edilen",
+                                style: TextStyle(
+                                    color: AppColor.white, fontSize: 17.sp),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                podcastCount ?? "0",
+                                style: TextStyle(
+                                    color: AppColor.white,
+                                    fontSize: 17.sp,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                height: 3.h,
+                              ),
+                              Text(
+                                "Podcast Sayısı",
+                                style: TextStyle(
+                                    color: AppColor.white, fontSize: 17.sp),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 15.h,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          IconButton(
+                              onPressed: () {
+                                Get.back();
+                              },
+                              icon: Container(
+                                width: 41.w,
+                                height: 41.h,
+                                decoration: BoxDecoration(
+                                    color: AppColor.primaryColor,
+                                    shape: BoxShape.circle),
+                                child: Center(
+                                  child: FaIcon(
+                                    FontAwesomeIcons.backward,
+                                    color: AppColor.white,
+                                    size: 17,
                                   ),
                                 ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          top: 15.h, left: 15.w),
-                                      child: SizedBox(
-                                        width: 250.w,
-                                        child: Center(
-                                          child: Text(
+                              )),
+                          ElevatedButton(
+                              onPressed: () async {
+                                setState(() {
+                                  isFollow = !isFollow;
+                                });
+                                if (isFollow) {
+                                  await _userController.follow(
+                                      _userController.currentUser.value.id!,
+                                      widget.profileUser.id!,
+                                      false);
+                                } else {
+                                  await _userController.unFollow(
+                                      _userController.currentUser.value.id!,
+                                      widget.profileUser.id!,
+                                      false);
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColor.primaryColor,
+                                  foregroundColor: AppColor.white,
+                                  minimumSize: Size(200.w, 35.h)),
+                              child: Text(
+                                  isFollow ? "Takip ediliyor" : "Takip et")),
+                          IconButton(
+                              onPressed: () {},
+                              icon: Container(
+                                width: 41.w,
+                                height: 41.h,
+                                decoration: BoxDecoration(
+                                    color: AppColor.primaryColor,
+                                    shape: BoxShape.circle),
+                                child: Center(
+                                  child: Icon(
+                                    Icons.block_sharp,
+                                    color: AppColor.white,
+                                    size: 23,
+                                  ),
+                                ),
+                              )),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 15.h,
+                      ),
+                      Text(
+                        "Podcasts",
+                        style:
+                            TextStyle(color: AppColor.white, fontSize: 20.sp),
+                      ),
+                      SizedBox(
+                        height: 5.h,
+                      ),
+                      Divider(
+                        thickness: 2,
+                      ),
+                      SizedBox(
+                        height: 15.h,
+                      ),
+                      Obx(
+                        () => SizedBox(
+                          width: ScreenUtil().screenWidth,
+                          height: 500.h,
+                          child: ListView.builder(
+                            itemCount:
+                                _podcastController.profilePodcastList.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return InkWell(
+                                onTap: () {
+                                  Get.to(() => PodcastPage(
+                                      podcast: _podcastController
+                                          .profilePodcastList[index]));
+                                },
+                                child: Padding(
+                                  padding:
+                                      EdgeInsets.only(left: 10.w, bottom: 15.h),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        width: 110.w,
+                                        height: 110.h,
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            color: Colors.grey.shade900),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          child: Image.network(
+                                            width: 110.w,
+                                            height: 110.h,
                                             _podcastController
                                                 .profilePodcastList[index]
-                                                .name!,
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 18.sp,
-                                                fontWeight: FontWeight.bold),
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 2,
+                                                .photo!,
+                                            fit: BoxFit.cover,
+                                            loadingBuilder: (context, child,
+                                                loadingProgress) {
+                                              if (loadingProgress == null) {
+                                                return child; // Resim yüklendikten sonra gösterilecek widget
+                                              } else {
+                                                return Center(
+                                                    child: CircularProgressIndicator(
+                                                        color: AppColor
+                                                            .primaryColor)); // Yükleme esnasında gösterilecek widget
+                                              }
+                                            },
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          top: 15.h, left: 15.w),
-                                      child: SizedBox(
-                                        width: 250.w,
-                                        child: Center(
-                                          child: Text(
-                                            "${_podcastController.profilePodcastList[index].user!.name!} ${_podcastController.profilePodcastList[index].user!.surName!}",
-                                            style: TextStyle(
-                                              color: Colors.grey.shade600,
-                                              fontSize: 18.sp,
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                                top: 15.h, left: 15.w),
+                                            child: SizedBox(
+                                              width: 250.w,
+                                              child: Center(
+                                                child: Text(
+                                                  _podcastController
+                                                      .profilePodcastList[index]
+                                                      .name!,
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 18.sp,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 2,
+                                                ),
+                                              ),
                                             ),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                        ),
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                                top: 15.h, left: 15.w),
+                                            child: SizedBox(
+                                              width: 250.w,
+                                              child: Center(
+                                                child: Text(
+                                                  "${_podcastController.profilePodcastList[index].user!.name!} ${_podcastController.profilePodcastList[index].user!.surName!}",
+                                                  style: TextStyle(
+                                                    color: Colors.grey.shade600,
+                                                    fontSize: 18.sp,
+                                                  ),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ],
-                            ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
+              ),
       ),
     );
   }

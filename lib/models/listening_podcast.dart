@@ -29,7 +29,6 @@ class ListeningPodcast {
     required this.podcastEpisodePhoto,
     required this.podcastEpisodeAbout,
     required this.podcastEpisodeName,
-    required this.listeningDuration,
   });
 
   factory ListeningPodcast.fromJson(Map<String, dynamic> json) =>
@@ -41,8 +40,7 @@ class ListeningPodcast {
           podcastOwner: json["podcastOwner"],
           podcastEpisodePhoto: json["podcastEpisodePhoto"],
           podcastEpisodeAbout: json["podcastEpisodeAbout"],
-          podcastEpisodeName: json["podcastEpisodeName"],
-          listeningDuration: json["listeningDuration"]);
+          podcastEpisodeName: json["podcastEpisodeName"]);
 
   Map<String, dynamic> toJson() => {
         "podcastId": podcastId,
@@ -53,6 +51,5 @@ class ListeningPodcast {
         "podcastEpisodePhoto": podcastEpisodePhoto,
         "podcastEpisodeAbout": podcastEpisodeAbout,
         "podcastEpisodeName": podcastEpisodeName,
-        "listeningDuration": listeningDuration,
       };
 }

@@ -17,20 +17,19 @@ class AllPodcast extends StatefulWidget {
 class _AllPodcastState extends State<AllPodcast> {
   ScrollController _scrollController = ScrollController();
   bool categoryPodcast = false;
+  bool mostPopular = false;
+  bool latest = true;
+  bool highestRating = false;
   String categoryName = "";
   @override
   void initState() {
     super.initState();
+
     _scrollController.addListener(() {
       if (_scrollController.position.atEdge &&
           _scrollController.position.pixels > 0) {
-        if (_podcastController.emptyPodcast.value == false) {
-          _podcastController.isLoading.value = true;
-          _podcastController.listClear.value = false;
-          _podcastController.getAllPodcasts(categoryName: categoryName);
-        } else {
-          _podcastController.isLoading.value = false;
-        }
+        _podcastController.listClear.value = false;
+        _podcastController.getAllPodcasts(categoryName: categoryName);
       }
     });
   }
@@ -70,6 +69,7 @@ class _AllPodcastState extends State<AllPodcast> {
   ];
   @override
   Widget build(BuildContext context) {
+    // BOŞLUK HATASI GİDERİLCEK
     return Obx(
       () => SingleChildScrollView(
         child: Column(
@@ -78,15 +78,6 @@ class _AllPodcastState extends State<AllPodcast> {
               padding: EdgeInsets.only(
                   top: _podcastController.podcastsPage.value ? 0.h : 20.h),
             ),
-            _podcastController.podcastsPage.value
-                ? SizedBox()
-                : Text(
-                    "KATEGORİLER",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.bold),
-                  ),
             _podcastController.podcastsPage.value
                 ? SizedBox(
                     width: ScreenUtil().screenWidth,
@@ -107,62 +98,39 @@ class _AllPodcastState extends State<AllPodcast> {
                                     if (index == 0) {
                                       return Column(
                                         children: [
-                                          Row(
-                                            children: [
-                                              SizedBox(
-                                                width: 5.w,
-                                              ),
-                                              IconButton(
-                                                  onPressed: () {
-                                                    _podcastController
-                                                        .podcastsPage
-                                                        .value = false;
-                                                  },
-                                                  icon: FaIcon(
-                                                    FontAwesomeIcons
-                                                        .arrowLeftLong,
-                                                    color: AppColor.white,
-                                                  )),
-                                              SizedBox(
-                                                width: 15.w,
-                                              ),
-                                              Align(
-                                                  alignment: Alignment.center,
-                                                  child: Container(
-                                                    width: 300.w,
-                                                    height: 32.h,
-                                                    decoration: BoxDecoration(
-                                                        color: AppColor
-                                                            .textFieldColor,
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    15))),
-                                                    child: TextField(
-                                                      cursorColor:
-                                                          AppColor.primaryColor,
-                                                      style: TextStyle(
-                                                          color:
-                                                              AppColor.white),
-                                                      enableSuggestions: false,
-                                                      decoration: InputDecoration(
-                                                          focusColor: AppColor
-                                                              .primaryColor,
-                                                          contentPadding:
-                                                              EdgeInsets.only(
-                                                                  bottom: 10.h),
-                                                          border:
-                                                              InputBorder.none,
-                                                          hintText:
-                                                              "Podcast Ara",
-                                                          hintStyle: TextStyle(
-                                                              color: AppColor
-                                                                  .textFieldTextcolor)),
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                    ),
-                                                  )),
-                                            ],
+                                          SingleChildScrollView(
+                                            scrollDirection: Axis.horizontal,
+                                            child: Row(
+                                              children: [
+                                                IconButton(
+                                                    onPressed: () {
+                                                      _podcastController
+                                                          .podcastsPage
+                                                          .value = false;
+                                                    },
+                                                    icon: FaIcon(
+                                                      FontAwesomeIcons
+                                                          .arrowLeftLong,
+                                                      color: AppColor.white,
+                                                    )),
+                                                // SizedBox(
+                                                //   width: 15.w,
+                                                // ),
+                                                filteredButtons(
+                                                    "Latest", latest),
+                                                SizedBox(
+                                                  width: 10.w,
+                                                ),
+                                                filteredButtons("Most Popular",
+                                                    mostPopular),
+                                                SizedBox(
+                                                  width: 10.w,
+                                                ),
+                                                filteredButtons(
+                                                    "Highest Rating",
+                                                    highestRating)
+                                              ],
+                                            ),
                                           ),
                                           SizedBox(
                                             height: 15.h,
@@ -171,7 +139,7 @@ class _AllPodcastState extends State<AllPodcast> {
                                             children: [
                                               InkWell(
                                                 onTap: () {
-                                                  Get.to(PodcastPage(
+                                                  Get.to(() => PodcastPage(
                                                       podcast:
                                                           _podcastController
                                                                   .allPodcasts[
@@ -378,7 +346,11 @@ class _AllPodcastState extends State<AllPodcast> {
                                                               size: 30,
                                                             ),
                                                             Text(
-                                                              "4.3",
+                                                              _podcastController
+                                                                      .allPodcasts[
+                                                                          index]
+                                                                      .rating ??
+                                                                  "0",
                                                               style: TextStyle(
                                                                   color: Colors
                                                                       .white,
@@ -606,7 +578,11 @@ class _AllPodcastState extends State<AllPodcast> {
                                                           size: 30,
                                                         ),
                                                         Text(
-                                                          "4.3",
+                                                          _podcastController
+                                                                  .allPodcasts[
+                                                                      index]
+                                                                  .rating ??
+                                                              "0",
                                                           style: TextStyle(
                                                               color:
                                                                   Colors.white,
@@ -630,20 +606,22 @@ class _AllPodcastState extends State<AllPodcast> {
                                   },
                                 ),
                               ),
-                              _podcastController.isLoading.value
-                                  ? Container(
-                                      width: ScreenUtil().screenWidth,
-                                      height: 17.h,
-                                      color: Colors.transparent,
-                                      child: Center(
-                                        child: LinearProgressIndicator(
-                                          backgroundColor: Colors.transparent,
-                                          color: AppColor.primaryColor,
-                                          minHeight: 17.h,
+                              Obx(
+                                () => _podcastController.isLoading.value
+                                    ? Container(
+                                        width: ScreenUtil().screenWidth,
+                                        height: 45.h,
+                                        color: Colors.transparent,
+                                        child: Center(
+                                          child: LinearProgressIndicator(
+                                            minHeight: 4.h,
+                                            color: AppColor.primaryColor,
+                                            backgroundColor: AppColor.white,
+                                          ),
                                         ),
-                                      ),
-                                    )
-                                  : SizedBox()
+                                      )
+                                    : SizedBox(),
+                              )
                             ],
                           )
                         : Padding(
@@ -686,6 +664,15 @@ class _AllPodcastState extends State<AllPodcast> {
                               ],
                             ),
                           ))
+                : Text(
+                    "KATEGORİLER",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.bold),
+                  ),
+            _podcastController.podcastsPage.value
+                ? SizedBox()
                 : Padding(
                     padding:
                         EdgeInsets.symmetric(horizontal: 17.w, vertical: 10.h),
@@ -695,6 +682,9 @@ class _AllPodcastState extends State<AllPodcast> {
                         14,
                         (index) => InkWell(
                           onTap: () async {
+                            _podcastController.isLoading.value = false;
+                            _podcastController.lastDocument = null;
+
                             if (index == 0) {
                               _podcastController.listClear.value = true;
                               await _podcastController.getAllPodcasts();
@@ -738,6 +728,47 @@ class _AllPodcastState extends State<AllPodcast> {
                   ),
           ],
         ),
+      ),
+    );
+  }
+
+  InkWell filteredButtons(String text, bool isSelected) {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          switch (text) {
+            case "Most Popular":
+              mostPopular = true;
+              latest = false;
+              highestRating = false;
+              break;
+            case "Latest":
+              latest = true;
+              highestRating = false;
+              mostPopular = false;
+              break;
+            case "Highest Rating":
+              highestRating = true;
+              mostPopular = false;
+              latest = false;
+              break;
+          }
+        });
+      },
+      child: Container(
+        child: Center(
+          child: Text(
+            text,
+            style: TextStyle(
+                color: AppColor.white,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal),
+          ),
+        ),
+        width: 110.w,
+        height: 30.h,
+        decoration: BoxDecoration(
+            color: isSelected ? AppColor.primaryColor : AppColor.textFieldColor,
+            borderRadius: BorderRadius.circular(15)),
       ),
     );
   }

@@ -18,6 +18,7 @@ import 'package:podcast_app/models/download.dart';
 import 'package:podcast_app/models/episode.dart';
 import 'package:podcast_app/models/listening_podcast.dart';
 
+// BAŞLANGIÇ DEĞERİ HEP 0 GELİYOR
 class PodcastListenPage extends StatefulWidget {
   PodcastListenPage({
     super.key,
@@ -43,34 +44,77 @@ class _PodcastListenPageState extends State<PodcastListenPage>
   bool confirm = false;
   bool isDownloading = false;
   bool isLoading = false;
+  String? tempEpisodephoto;
+  String? tempEpisodeUri;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 650),
     );
     animation = Tween<double>(begin: 0.0, end: 1).animate(_animationController);
 
-    _podcastController.isDownloadedPodcast.value = false;
     setState(() {
       isLoading = true;
     });
+
+    if (_podcastController.audioPlayer.playing) {
+      _animationController.forward();
+    }
+    _podcastController.isFinished.value = false;
     _podcastController
         .getPodcastById(widget.podcastId, widget.episodeId,
             _userController.currentUser.value.id!)
         .then((value) {
-      setState(() {
-        _listeningPodcast = value;
-        isLoading = false;
-      });
+      if (value != null) {
+        setState(() {
+          _listeningPodcast = value;
+        });
+
+        int? duration = _podcastController
+            .getEpisodeDuration(_listeningPodcast!.podcastEpisodeId!);
+
+        if (duration != null) {
+          setState(() {
+            _listeningPodcast!.listeningDuration = duration;
+          });
+        } else {
+          setState(() {
+            duration = 0;
+            _listeningPodcast!.listeningDuration = duration;
+          });
+        }
+
+        if (_podcastController.isDownloadedPodcast.value) {
+          _podcastController.audioPlayer
+              .setFilePath(value.uri!,
+                  initialPosition:
+                      Duration(seconds: _listeningPodcast!.listeningDuration!))
+              .then((_) {
+            setState(() {
+              isLoading = false;
+            });
+          });
+        } else {
+          _podcastController.audioPlayer
+              .setUrl(value.uri!,
+                  initialPosition:
+                      Duration(seconds: _listeningPodcast!.listeningDuration!))
+              .then((_) {
+            setState(() {
+              isLoading = false;
+            });
+          });
+        }
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    print(_listeningPodcast?.toJson().toString());
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -78,70 +122,89 @@ class _PodcastListenPageState extends State<PodcastListenPage>
             padding: EdgeInsets.only(right: 5.w),
             child: Obx(
               () => _podcastController.isDownloadedPodcast.value
-                  ? Padding(
-                      padding: EdgeInsets.only(right: 3.w),
-                      child: Icon(
-                        Icons.check,
-                        color: AppColor.white,
-                      ),
-                    )
+                  ? _podcastController.isActiveDownloadListen.value
+                      ? IconButton(
+                          onPressed: () async {
+                            confirm = await _podcastController.deleteDownload(
+                                _listeningPodcast!.podcastEpisodeId!,
+                                _listeningPodcast!.uri!,
+                                _listeningPodcast!.podcastEpisodePhoto!);
+                            confirm
+                                ? _podcastController.downloadsList.removeWhere(
+                                    (element) =>
+                                        element.podcastEpisodeId ==
+                                        _listeningPodcast!.podcastEpisodeId)
+                                : ();
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Center(
+                                    child: confirm
+                                        ? Text(
+                                            "Dosya başarıyla silindi  !",
+                                            style: TextStyle(fontSize: 15.sp),
+                                          )
+                                        : Text(
+                                            "Dosya silinirken bir hata oluştu !",
+                                            style: TextStyle(fontSize: 15.sp),
+                                          )),
+                                showCloseIcon: true,
+                                backgroundColor: confirm
+                                    ? AppColor.primaryColor
+                                    : Colors.red));
+                            setState(() {
+                              print(isLoading);
+                            });
+                          },
+                          icon: Icon(
+                            Icons.delete,
+                            color: confirm ? Colors.red : Colors.white,
+                            size: 27.sp,
+                          ),
+                        )
+                      : Padding(
+                          padding: EdgeInsets.only(right: 3.w),
+                          child: Icon(
+                            Icons.check,
+                            color: AppColor.white,
+                          ),
+                        )
                   : IconButton(
                       onPressed: () async {
-                        if (_podcastController.isActiveDownloadListen.value ==
-                            true) {
-                          confirm = await _podcastController.deleteDownload(
-                              _listeningPodcast!.podcastEpisodeId!,
-                              _listeningPodcast!.uri!,
-                              _listeningPodcast!.podcastEpisodePhoto!);
-                          confirm
-                              ? _podcastController.downloadsList.removeWhere(
-                                  (element) =>
-                                      element.podcastEpisodeId ==
-                                      _listeningPodcast!.podcastEpisodeId)
-                              : ();
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Center(
-                                  child: confirm
-                                      ? Text(
-                                          "Dosya başarıyla silindi  !",
-                                          style: TextStyle(fontSize: 15.sp),
-                                        )
-                                      : Text(
-                                          "Dosya silinirken bir hata oluştu !",
-                                          style: TextStyle(fontSize: 15.sp),
-                                        )),
-                              showCloseIcon: true,
-                              backgroundColor: confirm
-                                  ? AppColor.primaryColor
-                                  : Colors.red));
-                        } else {
-                          _podcastController.isDownloadingPodcast.value = true;
-                          confirm =
-                              await _podcastController.downloadPodcastFile(
-                                  _listeningPodcast!.uri,
-                                  _listeningPodcast!.podcastEpisodePhoto,
-                                  _listeningPodcast!.podcastEpisodeId!);
-                          _podcastController
-                              .downloadPodcastLocalDb(_listeningPodcast!);
-                          _podcastController.isDownloadingPodcast.value = false;
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Center(
-                                  child: confirm
-                                      ? Text(
-                                          "Dosya başarıyla indirildi  !",
-                                          style: TextStyle(fontSize: 15.sp),
-                                        )
-                                      : Text(
-                                          "Dosya indirilirken bir hata oluştu !",
-                                          style: TextStyle(fontSize: 15.sp),
-                                        )),
-                              showCloseIcon: true,
-                              backgroundColor: confirm
-                                  ? AppColor.primaryColor
-                                  : Colors.red));
-                          await _podcastController.checkPodcastDownloaded(
-                              _listeningPodcast!.podcastEpisodeId!);
-                        }
+                        _podcastController.isDownloadingPodcast.value = true;
+                        confirm = await _podcastController.downloadPodcastFile(
+                            _listeningPodcast!.uri,
+                            _listeningPodcast!.podcastEpisodePhoto,
+                            _listeningPodcast!.podcastEpisodeId!);
+                        tempEpisodephoto =
+                            _listeningPodcast!.podcastEpisodePhoto;
+                        tempEpisodeUri = _listeningPodcast!.uri;
+
+                        _listeningPodcast!.podcastEpisodePhoto =
+                            _podcastController.downloadPhotoPath.value;
+                        _listeningPodcast!.uri =
+                            _podcastController.downloadFilePath.value;
+                        await _podcastController
+                            .downloadPodcastLocalDb(_listeningPodcast!);
+                        _listeningPodcast!.podcastEpisodePhoto =
+                            tempEpisodephoto;
+                        _listeningPodcast!.uri = tempEpisodeUri;
+
+                        _podcastController.isDownloadingPodcast.value = false;
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Center(
+                                child: confirm
+                                    ? Text(
+                                        "Dosya başarıyla indirildi  !",
+                                        style: TextStyle(fontSize: 15.sp),
+                                      )
+                                    : Text(
+                                        "Dosya indirilirken bir hata oluştu !",
+                                        style: TextStyle(fontSize: 15.sp),
+                                      )),
+                            showCloseIcon: true,
+                            backgroundColor:
+                                confirm ? AppColor.primaryColor : Colors.red));
+                        await _podcastController.checkPodcastDownloaded(
+                            _listeningPodcast!.podcastEpisodeId!);
                       },
                       icon: _podcastController.isDownloadingPodcast.value
                           ? SizedBox(
@@ -152,15 +215,10 @@ class _PodcastListenPageState extends State<PodcastListenPage>
                                 strokeWidth: 4.0.w,
                               ),
                             )
-                          : _podcastController.isActiveDownloadListen.value
-                              ? FaIcon(
-                                  FontAwesomeIcons.trash,
-                                  color: AppColor.white,
-                                )
-                              : FaIcon(
-                                  FontAwesomeIcons.download,
-                                  color: AppColor.white,
-                                )),
+                          : FaIcon(
+                              FontAwesomeIcons.download,
+                              color: AppColor.white,
+                            )),
             ),
           )
         ],
@@ -175,9 +233,17 @@ class _PodcastListenPageState extends State<PodcastListenPage>
         centerTitle: true,
         backgroundColor: AppColor.backgroundColor,
         leading: IconButton(
-            onPressed: () {
-              _podcastController.setContinueListeningPodcast(
-                  _userController.currentUser.value.id!, _listeningPodcast!);
+            onPressed: () async {
+              if (_podcastController.isActiveDownloadListen.value == false &&
+                  _podcastController.isFinished.value == false) {
+                print(_podcastController.isFinished.value);
+                _podcastController.setContinueListeningPodcast(
+                    _userController.currentUser.value.id!, _listeningPodcast!);
+              } else {
+                await _podcastController.getContinueListeningPodcast(
+                    _userController.currentUser.value.id!);
+              }
+
               Get.back();
             },
             icon: Icon(
@@ -187,7 +253,9 @@ class _PodcastListenPageState extends State<PodcastListenPage>
       ),
       body: isLoading
           ? Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(
+                color: AppColor.primaryColor,
+              ),
             )
           : SingleChildScrollView(
               child: Column(
@@ -259,11 +327,22 @@ class _PodcastListenPageState extends State<PodcastListenPage>
                       stream: _podcastController.audioPlayer.positionStream,
                       builder: (context, snapshotPosition) {
                         return StreamBuilder<Duration?>(
+                            initialData: Duration(
+                                seconds: _listeningPodcast!.listeningDuration!),
                             stream:
                                 _podcastController.audioPlayer.durationStream,
                             builder: (context, snapshotDuration) {
+                              if (snapshotPosition.data != null) {
+                                _podcastController.setEpisodeDuration(
+                                    _listeningPodcast!.podcastEpisodeId!,
+                                    snapshotPosition.data!.inSeconds);
+                              }
+
                               return ProgressBar(
-                                progress: snapshotPosition.data ?? Duration(),
+                                progress: snapshotPosition.data ??
+                                    Duration(
+                                        seconds: _listeningPodcast!
+                                            .listeningDuration!),
                                 total: snapshotDuration.data ?? Duration(),
                                 baseBarColor: AppColor.white,
                                 thumbColor:
@@ -334,6 +413,14 @@ class _PodcastListenPageState extends State<PodcastListenPage>
                                       .seek(Duration.zero);
                                   _animationController.reverse();
                                   _podcastController.audioPlayer.stop();
+
+                                  _podcastController
+                                      .deleteContinueListeningPodcast(
+                                          _userController.currentUser.value.id!,
+                                          _listeningPodcast!.podcastEpisodeId!);
+                                  _userController.deleteEpisodeDuration(
+                                      _listeningPodcast!.podcastEpisodeId!);
+                                  _podcastController.isFinished.value = true;
                                 }
                               });
                             }

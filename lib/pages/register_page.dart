@@ -405,7 +405,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                       content: Center(
                                         child: Text("Başarıyla Kayıt olundu"),
                                       )));
-                              Get.to(() => HomePage());
+                              _userController.getcurrentUser().then((_) {
+                                Get.back();
+                              });
                             })
                           : ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               backgroundColor: Colors.red,

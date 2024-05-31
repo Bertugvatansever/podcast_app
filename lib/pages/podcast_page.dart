@@ -29,7 +29,9 @@ class _PodcastPageState extends State<PodcastPage> {
   bool isFavorite = false;
   bool isFollow = false;
   bool favouriteCheck = false;
+
   double star = 0;
+  double previousRating = 0;
   PodcastController _podcastController = Get.find();
   UserController _userController = Get.find();
 
@@ -37,7 +39,37 @@ class _PodcastPageState extends State<PodcastPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    _podcastController.podcastRating.value = widget.podcast.rating!;
+    _podcastController.listenPodcastRatings(widget.podcast.id!);
     _podcastController.getPodcastEpisodes(widget.podcast.id!);
+    isFavorite = _userController.currentUser.value.favourite!
+        .contains(widget.podcast.id);
+    isFollow = _podcastController.followPodcastIdList.value
+        .contains(widget.podcast.id);
+    _userController
+        .getUserRatingList(_userController.currentUser.value.id!)
+        .then((_) {
+      if (_userController.currentUser.value.myRatings != null) {
+        isRated = _userController.currentUser.value.myRatings!
+            .containsKey(widget.podcast.id!);
+        if (isRated) {
+          setState(() {
+            print(widget.podcast.rating);
+            star = _userController
+                .currentUser.value.myRatings![widget.podcast.id]!;
+            previousRating = star;
+            print("STAR" + star.toString());
+            print("previousRating" + previousRating.toString());
+          });
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _podcastController.cancelListenPodcast();
+    super.dispose();
   }
 
   @override
@@ -48,7 +80,13 @@ class _PodcastPageState extends State<PodcastPage> {
         centerTitle: true,
         backgroundColor: Colors.transparent,
         leading: IconButton(
-            onPressed: () {
+            onPressed: () async {
+              await _podcastController
+                  .getFavouritePodcasts(_userController.currentUser.value.id!);
+              await _podcastController
+                  .getFollowPodcasts(_userController.currentUser.value.id!);
+              await _podcastController.getContinueListeningPodcast(
+                  _userController.currentUser.value.id!);
               Get.back();
             },
             icon: Icon(
@@ -143,12 +181,14 @@ class _PodcastPageState extends State<PodcastPage> {
                                 left: 5.w,
                                 top: 1.h,
                               ),
-                              child: Text(
-                                "4.3",
-                                style: TextStyle(
-                                    fontSize: 15,
-                                    color: AppColor.white,
-                                    fontWeight: FontWeight.bold),
+                              child: Obx(
+                                () => Text(
+                                  _podcastController.podcastRating.value ?? "0",
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      color: AppColor.white,
+                                      fontWeight: FontWeight.bold),
+                                ),
                               ),
                             )
                           ],
@@ -256,7 +296,7 @@ class _PodcastPageState extends State<PodcastPage> {
                       alignment: Alignment.centerLeft,
                       child: RatingBar.builder(
                         unratedColor: AppColor.textFieldColor,
-                        initialRating: 0,
+                        initialRating: star,
                         itemSize: 31,
                         minRating: 1,
                         direction: Axis.horizontal,
@@ -270,7 +310,22 @@ class _PodcastPageState extends State<PodcastPage> {
                         onRatingUpdate: (rating) {
                           setState(() {
                             star = rating;
-                            isRated = true;
+                            if (isRated) {
+                              _podcastController
+                                  .setPodcastRating(widget.podcast.id!, rating,
+                                      _userController.currentUser.value.id!,
+                                      previousRating: previousRating)
+                                  .then((_) {});
+                            } else {
+                              _podcastController
+                                  .setPodcastRating(widget.podcast.id!, rating,
+                                      _userController.currentUser.value.id!)
+                                  .then((_) {
+                                setState(() {
+                                  isRated = true;
+                                });
+                              });
+                            }
                           });
                         },
                       ),
@@ -311,10 +366,27 @@ class _PodcastPageState extends State<PodcastPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         setState(() {
                           isFollow = !isFollow;
                         });
+                        if (isFollow) {
+                          await _userController.follow(
+                              _userController.currentUser.value.id!,
+                              widget.podcast.id!,
+                              true);
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              backgroundColor: AppColor.primaryColor,
+                              showCloseIcon: true,
+                              content: Center(
+                                child: Text("Podcast Takip Ediliyor !"),
+                              )));
+                        } else {
+                          await _userController.unFollow(
+                              _userController.currentUser.value.id!,
+                              widget.podcast.id!,
+                              true);
+                        }
                       },
                       child: Text(
                         isFollow ? "Takip Ediliyor" : "Takip Et",

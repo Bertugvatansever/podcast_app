@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:podcast_app/models/podcast.dart';
 import 'package:podcast_app/models/user.dart';
 
 class UserService {
@@ -105,5 +106,129 @@ class UserService {
     } catch (e) {
       print('Dosya indirilemedi: $e');
     }
+  }
+
+  Future<void> follow(String userId, String followId, bool isPodcast) async {
+    CollectionReference userReference = FirebaseFirestore.instance
+        .collection("users")
+        .doc(userId)
+        .collection("follow");
+    await userReference
+        .doc(followId)
+        .set({"followid": followId, "ispodcast": isPodcast});
+
+    if (isPodcast == false) {
+      CollectionReference userReference = FirebaseFirestore.instance
+          .collection("users")
+          .doc(followId)
+          .collection("followers");
+      userReference.doc(userId).set({"followersid": userId});
+    }
+  }
+
+  Future<void> unFollow(String userId, String followId, bool isPodcast) async {
+    CollectionReference userReference = FirebaseFirestore.instance
+        .collection("users")
+        .doc(userId)
+        .collection("follow");
+
+    await userReference.doc(followId).delete();
+
+    if (isPodcast == false) {
+      CollectionReference userReference = FirebaseFirestore.instance
+          .collection("users")
+          .doc(followId)
+          .collection("followers");
+      await userReference.doc(userId).delete();
+    }
+  }
+
+  Future<Map<String, String>> calculateFollowCount(
+    String userId,
+  ) async {
+    Map<String, String> followMap;
+    // Takip sayısı hesaplama
+    CollectionReference userReference = FirebaseFirestore.instance
+        .collection("users")
+        .doc(userId)
+        .collection("follow");
+    QuerySnapshot querySnapshot = await userReference.get();
+    // olmazsa querySnapshot.size kullan
+    String followCount = querySnapshot.size.toString();
+    userReference = FirebaseFirestore.instance
+        .collection("users")
+        .doc(userId)
+        .collection("followers");
+    querySnapshot = await userReference.get();
+    String followersCount = querySnapshot.size.toString();
+
+    followMap = {"follow": followCount, "followers": followersCount};
+    return followMap;
+  }
+
+  Future<String> calculatePodcastCount(String userId) async {
+    CollectionReference podcastReference =
+        FirebaseFirestore.instance.collection("podcasts");
+    QuerySnapshot querySnapshot = await podcastReference
+        // içerideki map e erişmek için nokta kullanıyoruz.
+        .where("podcastuser.id", isEqualTo: userId)
+        .get();
+    String podcastCount = querySnapshot.size.toString();
+    return podcastCount;
+  }
+
+  Future<Map<String, dynamic>?>? getFollowPodcasts(String userId) async {
+    List<String> podcastIdList = [];
+    List<Podcast> followPodcastList = [];
+    Map<String, dynamic>? followPodcastMap;
+    CollectionReference userReference = FirebaseFirestore.instance
+        .collection("users")
+        .doc(userId)
+        .collection("follow");
+    QuerySnapshot querySnapshot =
+        await userReference.where("ispodcast", isEqualTo: true).get();
+    if (querySnapshot.docs.isNotEmpty) {
+      querySnapshot.docs.forEach((element) {
+        var data = element.data() as Map<String, dynamic>;
+        podcastIdList.add(data["followid"]);
+      });
+
+      CollectionReference podcastReference =
+          FirebaseFirestore.instance.collection("podcasts");
+      querySnapshot = await podcastReference
+          .where("podcastid", whereIn: podcastIdList)
+          .get();
+      querySnapshot.docs.forEach((element) {
+        Podcast podcast =
+            Podcast.fromJson(element.data() as Map<String, dynamic>);
+        followPodcastList.add(podcast);
+      });
+
+      followPodcastMap = {
+        "podcastIdList": podcastIdList,
+        "followPodcastList": followPodcastList
+      };
+
+      return followPodcastMap;
+    } else {
+      return null;
+    }
+  }
+
+  Future<void> setUserRating(
+      String userId, String podcastId, double rating) async {
+    CollectionReference userReference =
+        FirebaseFirestore.instance.collection("users");
+    userReference.doc(userId).set({
+      "myRatings": {podcastId: rating}
+    }, SetOptions(merge: true));
+  }
+
+  Future<Map<String, double>?>? getUserRatingList(String userId) async {
+    CollectionReference userReference =
+        FirebaseFirestore.instance.collection("users");
+    DocumentSnapshot documentSnapshot = await userReference.doc(userId).get();
+    User user = User.fromJson(documentSnapshot.data() as Map<String, dynamic>);
+    return user.myRatings;
   }
 }

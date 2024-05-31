@@ -10,6 +10,7 @@ class LocalDbService {
     await Hive.initFlutter();
     await Hive.openBox('Downloads');
     await Hive.openBox<String>('ProfilePhotos');
+    await Hive.openBox('ContinueDurations');
   }
 
   Future<void> saveDownloadPodcast(ListeningPodcast listeningPodcast) async {
@@ -50,7 +51,7 @@ class LocalDbService {
       } else {
         print('Fotoğraf mevcut değil: $photoPath');
       }
-      await Hive.box<Download>("Downloads").delete(id); // Veritabanından silme
+      await Hive.box("Downloads").delete(id); // Veritabanından silme
       return true;
     } catch (e) {
       print('Dosya silinirken bir hata oluştu: $e');
@@ -62,20 +63,63 @@ class LocalDbService {
     List<ListeningPodcast> downloadsList = [];
     Box downloadsBox = Hive.box("Downloads");
 
-    downloadsBox.values.forEach((e) {
-      ListeningPodcast listeningPodcast =
-          ListeningPodcast.fromJson(e as Map<String, dynamic>);
-      downloadsList.add(listeningPodcast);
-    });
+    for (var e in downloadsBox.values) {
+      try {
+        if (e is Map) {
+          // Ensure the map has String keys and dynamic values
+          Map<String, dynamic> jsonMap = Map<String, dynamic>.from(e);
+
+          ListeningPodcast listeningPodcast =
+              ListeningPodcast.fromJson(jsonMap);
+          downloadsList.add(listeningPodcast);
+        } else {
+          print("Unexpected data type: ${e.runtimeType}");
+        }
+      } catch (error) {
+        print("Error parsing download: $error");
+      }
+      print(downloadsList[0].podcastEpisodePhoto);
+      print(downloadsList[0].uri);
+    }
 
     return downloadsList;
   }
 
-  ListeningPodcast getPodcastById(String episodeId) {
+  ListeningPodcast? getEpisodeById(String episodeId) {
     Box downloadsBox = Hive.box("Downloads");
     var result = downloadsBox.get(episodeId);
-    ListeningPodcast listeningPodcast =
-        ListeningPodcast.fromJson(result as Map<String, dynamic>);
-    return listeningPodcast;
+    if (result != null) {
+      final resultMap = Map<String, dynamic>.from(result as Map);
+
+      ListeningPodcast listeningPodcast = ListeningPodcast.fromJson(resultMap);
+      print("NAMEEEEEEEEEEE" + listeningPodcast.podcastEpisodeName.toString());
+      print(listeningPodcast.podcastEpisodeAbout);
+      print(listeningPodcast.podcastId);
+      print(listeningPodcast.podcastEpisodePhoto);
+      print(listeningPodcast.podcastEpisodeName);
+      print(listeningPodcast.podcastEpisodeName);
+      print(listeningPodcast.podcastEpisodeName);
+
+      return listeningPodcast;
+    }
+  }
+
+  int? getEpisodeDuration(String episodeId) {
+    Box durationBox = Hive.box("ContinueDurations");
+
+    int? duration = durationBox.get(episodeId);
+
+    return duration;
+  }
+
+  void setEpisodeDuration(String episodeId, int duration) {
+    Box durationBox = Hive.box("ContinueDurations");
+
+    durationBox.put(episodeId, duration);
+  }
+
+  void deleteEpisodeDuration(String episodeId) {
+    Box durationBox = Hive.box("ContinueDurations");
+    durationBox.delete(episodeId);
   }
 }

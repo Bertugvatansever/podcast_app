@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -20,13 +19,14 @@ class UserController extends GetxController {
       photo: "",
       email: "",
       createdTime: 1,
-      favourite: [""]).obs;
+      favourite: [""],
+      myRatings: {}).obs;
   Rx<int> currentIndex = 0.obs;
   Rx<bool> isProfileEdit = false.obs;
   Rx<bool> isProfilePhoto = false.obs;
   Rx<bool> isProfilePhotoChange = false.obs;
   Rx<File> profilePhotoFile = File("").obs;
-
+  RxList<double> ratingList = <double>[].obs;
   @override
   void onInit() async {
     super.onInit();
@@ -34,7 +34,14 @@ class UserController extends GetxController {
     await getMyProfilePhotoLocalDb();
     print(profilePhotoFile.value);
     if (profilePhotoFile.value.path != "") {
-      isProfilePhoto.value = true;
+      // Fotoğraf dbde varsa bile cihazda olup olmadığını kontrol ediyorum.
+      File file = File(profilePhotoFile.value.path);
+      bool exists = await file.exists();
+      if (exists) {
+        print("Fotoğraf Mevcut");
+      } else {
+        await checkNewDevice();
+      }
     } else {
       await checkNewDevice();
     }
@@ -111,6 +118,7 @@ class UserController extends GetxController {
     String? localProfilePhoto = await _localDbService.getMyProfilePhoto();
     if (localProfilePhoto != null) {
       profilePhotoFile.value = File(localProfilePhoto);
+      isProfilePhoto.value = true;
     }
 
     print(profilePhotoFile.value.path);
@@ -135,8 +143,36 @@ class UserController extends GetxController {
         isProfilePhoto.value = false;
       }
     } catch (e) {
-      print(
-          "profil fotoğrafı veritabanına kaydedilirken hata oluştu : ${e.toString()}");
+      print("Kullanıcının profil fotoğrafı yok : ${e.toString()}");
     }
+  }
+
+  Future<void> follow(String userId, String followId, bool isPodcast) async {
+    await _userService.follow(userId, followId, isPodcast);
+  }
+
+  Future<void> unFollow(String userId, String followId, bool isPodcast) async {
+    await _userService.unFollow(userId, followId, isPodcast);
+  }
+
+  Future<Map<String, String>> calculateFollowCount(String userId) async {
+    Map<String, String> followMap;
+    followMap = await _userService.calculateFollowCount(
+      userId,
+    );
+    return followMap;
+  }
+
+  Future<String> calculatePodcastCount(String userId) async {
+    String podcastCount = await _userService.calculatePodcastCount(userId);
+    return podcastCount;
+  }
+
+  Future<void> getUserRatingList(String userId) async {
+    currentUser.value.myRatings = await _userService.getUserRatingList(userId);
+  }
+
+  void deleteEpisodeDuration(String episodeId) {
+    _localDbService.deleteEpisodeDuration(episodeId);
   }
 }

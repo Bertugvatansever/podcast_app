@@ -97,12 +97,14 @@ class PodcastService {
         FirebaseFirestore.instance.collection("users");
     QuerySnapshot querySnapshot =
         await userReference.doc(userId).collection("listenPodcasts").get();
-    querySnapshot.docs.map((doc) {
+
+    querySnapshot.docs.forEach((doc) {
       ListeningPodcast listeningPodcast =
           ListeningPodcast.fromJson(doc.data() as Map<String, dynamic>);
+
       listeningPodcasts.add(listeningPodcast);
     });
-
+    print("LİSTENİNG PODCASTS" + listeningPodcasts.length.toString());
     return listeningPodcasts;
   }
 
@@ -113,8 +115,19 @@ class PodcastService {
     await collectionReference
         .doc(userId)
         .collection("listenPodcasts")
-        .doc(listeningPodcast.podcastId)
+        .doc(listeningPodcast.podcastEpisodeId)
         .set(listeningPodcast.toJson());
+  }
+
+  Future<void> deleteContinueListeningPodcast(
+      String userId, String listeningPodcastId) async {
+    CollectionReference collectionReference =
+        FirebaseFirestore.instance.collection('users');
+    await collectionReference
+        .doc(userId)
+        .collection("listenPodcasts")
+        .doc(listeningPodcastId)
+        .delete();
   }
 
   Future<List<Episode>> getPodcastEpisodes(String podcastId) async {
@@ -252,14 +265,24 @@ class PodcastService {
     }
   }
 
-  Future<Map<String, dynamic>?> getAllPodcasts(
-      List<Podcast> podcastList, DocumentSnapshot? lastDocument,
+  Future<int> getAllPodcastsCount() async {
+    CollectionReference countReference =
+        FirebaseFirestore.instance.collection("counts");
+    QuerySnapshot querySnapshot = await countReference.limit(1).get();
+    int count = 0;
+    count = (querySnapshot.docs.first.data()
+        as Map<String, dynamic>)["allPodcastsCount"];
+    return count;
+  }
+
+  Future<Map<String, dynamic>?> getAllPodcasts(DocumentSnapshot? lastDocument,
       {String? categoryName}) async {
     List<Podcast> allPodcasts = [];
     QuerySnapshot querySnapshot;
-    if (podcastList.isEmpty) {
-      CollectionReference podcastReference =
-          FirebaseFirestore.instance.collection("podcasts");
+    CollectionReference podcastReference =
+        FirebaseFirestore.instance.collection("podcasts");
+
+    if (lastDocument == null) {
       if (categoryName != null && categoryName.isNotEmpty) {
         querySnapshot = await podcastReference
             .orderBy("podcastcreatedtime")
@@ -270,67 +293,42 @@ class PodcastService {
         querySnapshot =
             await podcastReference.orderBy("podcastcreatedtime").limit(2).get();
       }
-      if (querySnapshot.docs.isNotEmpty) {
-        bool emptyPodcast = false;
-        lastDocument = querySnapshot.docs.last;
-        print(lastDocument);
-        querySnapshot.docs.forEach((element) {
-          Podcast podcast =
-              Podcast.fromJson(element.data() as Map<String, dynamic>);
-          allPodcasts.add(podcast);
-        });
-        bool isLoading = false;
-
-        return {
-          "lastDocument": lastDocument,
-          "list": allPodcasts,
-          "isLoading": isLoading,
-          "emptyPodcast": emptyPodcast
-        };
-      }
     } else {
-      QuerySnapshot querySnapshot;
-      CollectionReference podcastReference =
-          FirebaseFirestore.instance.collection("podcasts");
       if (categoryName != null && categoryName.isNotEmpty) {
         querySnapshot = await podcastReference
             .orderBy("podcastcreatedtime")
-            .startAfterDocument(lastDocument!)
+            .startAfterDocument(lastDocument)
             .limit(2)
             .where("podcastcategory", arrayContains: categoryName)
             .get();
       } else {
         querySnapshot = await podcastReference
             .orderBy("podcastcreatedtime")
-            .startAfterDocument(lastDocument!)
+            .startAfterDocument(lastDocument)
             .limit(2)
             .get();
       }
+    }
 
-      if (querySnapshot.docs.isEmpty) {
-        bool emptyPodcast = true;
-        return {"emptyPodcast": emptyPodcast};
-      } else {
-        lastDocument = querySnapshot.docs.last;
-        querySnapshot.docs.forEach((element) {
-          Podcast podcast =
-              Podcast.fromJson(element.data() as Map<String, dynamic>);
-          allPodcasts.add(podcast);
-        });
-        bool emptyPodcast = false;
-        bool isLoading = false;
-        return {
-          "lastDocument": lastDocument,
-          "list": allPodcasts,
-          "isLoading": isLoading,
-          "emptyPodcast": emptyPodcast
-        };
-      }
+    if (querySnapshot.docs.isNotEmpty) {
+      lastDocument = querySnapshot.docs.last;
+
+      querySnapshot.docs.forEach((element) {
+        Podcast podcast =
+            Podcast.fromJson(element.data() as Map<String, dynamic>);
+        allPodcasts.add(podcast);
+      });
+
+      return {
+        "lastDocument": lastDocument,
+        "list": allPodcasts,
+      };
+    } else {
+      return null;
     }
   }
 
-//TODO Adı GetEpisodebyId olarak değişcek
-  Future<ListeningPodcast> getPodcastById(
+  Future<ListeningPodcast> getEpisodeById(
       String podcastId, String episodeId, String userId) async {
     DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
         .collection("podcasts")
@@ -342,19 +340,19 @@ class PodcastService {
     Episode episode =
         Episode.fromJson(documentSnapshot.data() as Map<String, dynamic>);
     ListeningPodcast listeningPodcast = ListeningPodcast(
-        podcastId: episode.podcastId,
-        podcastEpisodeId: episode.episodeId,
-        uri: episode.file,
-        podcastName: episode.podcastName,
-        podcastOwner: episode.name,
-        podcastEpisodePhoto: episode.episodeImage,
-        podcastEpisodeAbout: episode.episodeAbout,
-        podcastEpisodeName: episode.name,
-        listeningDuration: 5);
+      podcastId: episode.podcastId,
+      podcastEpisodeId: episode.episodeId,
+      uri: episode.file,
+      podcastName: episode.podcastName,
+      podcastOwner: episode.name,
+      podcastEpisodePhoto: episode.episodeImage,
+      podcastEpisodeAbout: episode.episodeAbout,
+      podcastEpisodeName: episode.name,
+    );
     return listeningPodcast;
   }
 
-  Future<ListeningPodcast?> getPodcastByIdFromListenPodcasts(
+  Future<ListeningPodcast?> getEpisodeByIdFromListenPodcasts(
       String podcastId, String episodeId, String userId) async {
     DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
         .collection("users")
@@ -371,5 +369,56 @@ class PodcastService {
     } else {
       return null;
     }
+  }
+
+  Future<void> setPodcastRating(
+    String podcastId,
+    double podcastRating,
+    String userId,
+  ) async {
+    CollectionReference podcastReference =
+        FirebaseFirestore.instance.collection("podcasts");
+
+    await podcastReference.doc(podcastId).set({
+      "rating": {userId: podcastRating},
+    }, SetOptions(merge: true));
+  }
+
+  Future<void> writePodcastRating(
+      String podcastId, String podcastFinalRating) async {
+    CollectionReference podcastReference =
+        FirebaseFirestore.instance.collection("podcasts");
+    await podcastReference
+        .doc(podcastId)
+        .update({"podcastrating": podcastFinalRating});
+  }
+
+  Future<Map<String, double>?>? calculatePodcastRating(String podcastId) async {
+    CollectionReference podcastReference =
+        FirebaseFirestore.instance.collection("podcasts");
+    DocumentSnapshot documentSnapshot =
+        await podcastReference.doc(podcastId).get();
+    var data = documentSnapshot.data() as Map<String, dynamic>;
+    if (data.containsKey("rating")) {
+      var ratingData = data["rating"] as Map<String, dynamic>;
+      Map<String, double>? podcastRatings =
+          ratingData.map((key, value) => MapEntry(key, value.toDouble()));
+
+      return podcastRatings;
+    }
+
+    return null;
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> listenPodcastRatings(
+      String podcastId) {
+    CollectionReference podcastReference =
+        FirebaseFirestore.instance.collection("podcasts");
+    Stream<QuerySnapshot<Map<String, dynamic>>> podcastStream =
+        FirebaseFirestore.instance
+            .collection("podcasts")
+            .where("podcastid", isEqualTo: podcastId)
+            .snapshots();
+    return podcastStream;
   }
 }
