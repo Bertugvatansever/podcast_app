@@ -50,7 +50,7 @@ class _PodcastListenPageState extends State<PodcastListenPage>
   void initState() {
     // TODO: implement initState
     super.initState();
-
+    print("CALIYOR MU" + _podcastController.audioPlayer.playing.toString());
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 650),

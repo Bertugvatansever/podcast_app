@@ -48,7 +48,11 @@ class _HomePageState extends State<HomePage> {
         .getContinueListeningPodcast(_userController.currentUser.value.id!);
     _podcastController
         .getFavouritePodcasts(_userController.currentUser.value.id!);
+
     _podcastController.getFollowPodcasts(_userController.currentUser.value.id!);
+    _userController
+        .getFollow(_userController.currentUser.value.id!)
+        .then((_) {});
     print("Favori Listesi uzunluğu" +
         _podcastController.favouriteList.length.toString());
   }

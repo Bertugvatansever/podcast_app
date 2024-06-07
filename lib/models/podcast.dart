@@ -18,7 +18,7 @@ class Podcast {
   int? createdTime;
   String? rating;
   User? user;
-  List<int>? comments;
+  int? viewCount;
   List<String>? episodes;
 
   Podcast(
@@ -30,6 +30,7 @@ class Podcast {
       required this.createdTime,
       required this.rating,
       required this.user,
+      required this.viewCount,
       required this.episodes});
 
   factory Podcast.fromJson(Map<String, dynamic> json) => Podcast(
@@ -42,6 +43,7 @@ class Podcast {
         createdTime: json["podcastcreatedtime"],
         rating: json["podcastrating"],
         user: User.fromJson(json["podcastuser"]),
+        viewCount: json["podcastview"] ?? 0,
         episodes:
             (json["podcastepisodes"] as List).map((e) => e.toString()).toList(),
       );
@@ -55,6 +57,7 @@ class Podcast {
         "podcastcreatedTime": createdTime,
         "podcastrating": rating,
         "podcastuser": user?.toJson(),
+        "podcastview": viewCount,
         "podcastepisodes": episodes
       };
 }

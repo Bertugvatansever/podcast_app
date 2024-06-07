@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:podcast_app/app_colors.dart';
 import 'package:podcast_app/controllers/user_controller.dart';
 import 'package:podcast_app/pages/register_page.dart';
+import 'package:podcast_app/pages/save_account_page.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({super.key});
@@ -125,8 +126,24 @@ class _LoginPageState extends State<LoginPage> {
                 height: 50.h,
               ),
             ),
+            Padding(
+              padding: EdgeInsets.only(left: 15.w),
+              child: TextButton(
+                  style: ButtonStyle(splashFactory: NoSplash.splashFactory),
+                  onPressed: () {
+                    Get.to(() => SaveAccountPage());
+                  },
+                  child: Text(
+                    "Did you forget your password ?",
+                    style: TextStyle(
+                      color: AppColor.primaryColor,
+                      decoration: TextDecoration.underline,
+                      decorationColor: AppColor.primaryColor,
+                    ),
+                  )),
+            ),
             SizedBox(
-              height: 60.h,
+              height: 30.h,
             ),
             Center(
                 child: ElevatedButton(
@@ -142,7 +159,7 @@ class _LoginPageState extends State<LoginPage> {
                   foregroundColor: Colors.white),
             )),
             SizedBox(
-              height: 200.h,
+              height: 195.h,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

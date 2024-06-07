@@ -39,6 +39,7 @@ class PodcastController extends GetxController {
   Rx<bool> isLoading = false.obs;
   Rx<bool> emptyPodcast = false.obs;
   Rx<bool> isFinished = false.obs;
+  Rx<bool> firstLoadAllpodcast = false.obs;
   Rx<String> currentPodcastFilePath = "".obs;
   Rx<String> podcastName = "".obs;
   Rx<String> downloadFilePath = "".obs;
@@ -49,14 +50,14 @@ class PodcastController extends GetxController {
   Rx<String> episodeAbout = "".obs;
   Rx<String> podcastRating = "".obs;
   RxList<ListeningPodcast> continuePodcastList = <ListeningPodcast>[].obs;
-  RxList<Episode> continuePodcastEpisodeList = <Episode>[].obs;
+  RxList<Episode> podcastEpisodeList = <Episode>[].obs;
   RxList<Podcast> myPodcasts = <Podcast>[].obs;
   RxList<Podcast> favouriteList = <Podcast>[].obs;
   RxList<Podcast> profilePodcastList = <Podcast>[].obs;
   RxList<Podcast> allPodcasts = <Podcast>[].obs;
   RxList<Podcast> followPodcastList = <Podcast>[].obs;
   RxList<String> followPodcastIdList = <String>[].obs;
-  RxList<String> allPodcastIdList = <String>[].obs;
+  RxList<Podcast> searchPodcastList = <Podcast>[].obs;
   RxList<ListeningPodcast> downloadsList = <ListeningPodcast>[].obs;
   Rx<File> podcastImageFile = File("").obs;
   Rx<File> podcastEpisodeImageFile = File("").obs;
@@ -64,6 +65,9 @@ class PodcastController extends GetxController {
   Duration recordTime = Duration.zero;
   String recordTimeString = "";
   StreamSubscription? podcastStreamSubscription;
+  StreamSubscription? allPodcastStreamSubscription;
+  StreamSubscription? podcastViewStreamSubscription;
+
   late Timer timer;
   final AudioPlayer audioPlayer = AudioPlayer();
   final record = AudioRecorder();
@@ -214,9 +218,9 @@ class PodcastController extends GetxController {
   Future<void> getPodcastEpisodes(String podcastId) async {
     List<Episode> episodesToAdd =
         await _podcastService.getPodcastEpisodes(podcastId);
-    continuePodcastEpisodeList.clear();
-    continuePodcastEpisodeList.addAll(episodesToAdd);
-    print(continuePodcastEpisodeList.length);
+    podcastEpisodeList.clear();
+    podcastEpisodeList.addAll(episodesToAdd);
+    print(podcastEpisodeList.length);
   }
 
   Future<List<Podcast>> getMyPodcasts(String userId) async {
@@ -298,7 +302,7 @@ class PodcastController extends GetxController {
     await checkFileExistence('${directory!.path}/${episodeId}.mp3');
   }
 
-  Future<void> getAllPodcasts({String? categoryName}) async {
+  Future<void> getAllPodcasts(String filter, {String? categoryName}) async {
     try {
       await getAllPodcastsCount();
       if (listClear.value) {
@@ -308,16 +312,13 @@ class PodcastController extends GetxController {
         isLoading.value = true;
 
         Map<String, dynamic>? result = await _podcastService
-            .getAllPodcasts(lastDocument, categoryName: categoryName);
+            .getAllPodcasts(lastDocument, filter, categoryName: categoryName);
 
         await Future.delayed(Duration(seconds: 1));
 
         if (result != null) {
-          allPodcastIdList.clear();
           allPodcasts.addAll(result["list"]);
-          for (var element in allPodcasts) {
-            allPodcastIdList.add(element.id!);
-          }
+
           lastDocument = result["lastDocument"];
         }
 
@@ -406,6 +407,10 @@ class PodcastController extends GetxController {
     }
   }
 
+  Future<void> setPodcastView(String podcastId, int podcastView) async {
+    await _podcastService.setPodcastView(podcastId, podcastView);
+  }
+
   void listenPodcastRatings(String podcastId) {
     podcastStreamSubscription =
         _podcastService.listenPodcastRatings(podcastId).listen((event) {
@@ -417,7 +422,55 @@ class PodcastController extends GetxController {
     });
   }
 
+  void listenAllPodcastRatings() {
+    allPodcastStreamSubscription =
+        _podcastService.listenAllPodcastRatings().listen((event) {
+      if (event.docs.isNotEmpty) {
+        var updateRating = event.docs.first.data();
+        String podcastId = updateRating["podcastid"];
+        allPodcasts.forEach((podcast) {
+          if (podcast.id == podcastId) {
+            String newRating = updateRating["podcastrating"];
+            print("new Rating" + newRating);
+            podcast.rating = newRating;
+            print("PODCAST RATİNG" + podcast.rating.toString());
+          }
+        });
+      }
+    });
+  }
+
+  void listenAllPodcastView() {
+    podcastViewStreamSubscription =
+        _podcastService.listenAllPodcastView().listen((event) {
+      if (event.docs.isNotEmpty) {
+        var updateView = event.docs.first.data();
+        String podcastId = updateView["podcastid"];
+        allPodcasts.forEach((podcast) {
+          if (podcast.id == podcastId) {
+            int newView = updateView["podcastview"];
+            print("new Rating" + newView.toString());
+            podcast.viewCount = newView;
+            print("PODCAST RATİNG" + podcast.viewCount.toString());
+          }
+        });
+      }
+    });
+  }
+
   void cancelListenPodcast() {
     podcastStreamSubscription!.cancel();
+  }
+
+  void cancelListenAllPodcast() {
+    allPodcastStreamSubscription!.cancel();
+  }
+
+  void cancelListenView() {
+    podcastViewStreamSubscription!.cancel();
+  }
+
+  Future<void> getAllPodcastsSearch() async {
+    searchPodcastList.value = await _podcastService.getAllPodcastsSearch();
   }
 }

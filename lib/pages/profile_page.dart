@@ -27,7 +27,10 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     // TODO: TAKİP EDİP ETMEDİĞİNİ HER GİRİŞTE KONTROL ET.
     super.initState();
+
     setState(() {
+      isFollow = _userController.followUserList
+          .any((user) => user.id == widget.profileUser.id);
       isLoading = true;
     });
     _podcastController.getProfilePodcasts(widget.profileUser.id!);
@@ -170,7 +173,15 @@ class _ProfilePageState extends State<ProfilePage> {
                         children: [
                           IconButton(
                               onPressed: () {
-                                Get.back();
+                                Get.back(result: {
+                                  "follow": (_userController
+                                              .followPodcastList.length +
+                                          _userController.followUserList.length)
+                                      .toString(),
+                                  "followers":
+                                      (_userController.followersUserList.length)
+                                          .toString()
+                                });
                               },
                               icon: Container(
                                 width: 41.w,
@@ -196,11 +207,16 @@ class _ProfilePageState extends State<ProfilePage> {
                                       _userController.currentUser.value.id!,
                                       widget.profileUser.id!,
                                       false);
+                                  _userController.followUserList
+                                      .add(widget.profileUser);
                                 } else {
                                   await _userController.unFollow(
                                       _userController.currentUser.value.id!,
                                       widget.profileUser.id!,
                                       false);
+                                  _userController.followUserList.removeWhere(
+                                      (user) =>
+                                          user.id == widget.profileUser.id);
                                 }
                               },
                               style: ElevatedButton.styleFrom(

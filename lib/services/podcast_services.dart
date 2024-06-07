@@ -275,7 +275,8 @@ class PodcastService {
     return count;
   }
 
-  Future<Map<String, dynamic>?> getAllPodcasts(DocumentSnapshot? lastDocument,
+  Future<Map<String, dynamic>?> getAllPodcasts(
+      DocumentSnapshot? lastDocument, String filter,
       {String? categoryName}) async {
     List<Podcast> allPodcasts = [];
     QuerySnapshot querySnapshot;
@@ -285,25 +286,27 @@ class PodcastService {
     if (lastDocument == null) {
       if (categoryName != null && categoryName.isNotEmpty) {
         querySnapshot = await podcastReference
-            .orderBy("podcastcreatedtime")
+            .orderBy(filter, descending: true)
             .limit(2)
             .where("podcastcategory", arrayContains: categoryName)
             .get();
       } else {
-        querySnapshot =
-            await podcastReference.orderBy("podcastcreatedtime").limit(2).get();
+        querySnapshot = await podcastReference
+            .orderBy(filter, descending: true)
+            .limit(2)
+            .get();
       }
     } else {
       if (categoryName != null && categoryName.isNotEmpty) {
         querySnapshot = await podcastReference
-            .orderBy("podcastcreatedtime")
+            .orderBy(filter, descending: true)
             .startAfterDocument(lastDocument)
             .limit(2)
             .where("podcastcategory", arrayContains: categoryName)
             .get();
       } else {
         querySnapshot = await podcastReference
-            .orderBy("podcastcreatedtime")
+            .orderBy(filter, descending: true)
             .startAfterDocument(lastDocument)
             .limit(2)
             .get();
@@ -388,9 +391,10 @@ class PodcastService {
       String podcastId, String podcastFinalRating) async {
     CollectionReference podcastReference =
         FirebaseFirestore.instance.collection("podcasts");
-    await podcastReference
-        .doc(podcastId)
-        .update({"podcastrating": podcastFinalRating});
+    await podcastReference.doc(podcastId).update({
+      "podcastrating": podcastFinalRating,
+      "podcastChangedTime": DateTime.now().millisecondsSinceEpoch
+    });
   }
 
   Future<Map<String, double>?>? calculatePodcastRating(String podcastId) async {
@@ -410,6 +414,15 @@ class PodcastService {
     return null;
   }
 
+  Future<void> setPodcastView(String podcastId, int podcastView) async {
+    CollectionReference podcastReference =
+        FirebaseFirestore.instance.collection("podcasts");
+    await podcastReference.doc(podcastId).update({
+      "podcastview": podcastView + 1,
+      "podcastChangedTime": DateTime.now().millisecondsSinceEpoch
+    });
+  }
+
   Stream<QuerySnapshot<Map<String, dynamic>>> listenPodcastRatings(
       String podcastId) {
     CollectionReference podcastReference =
@@ -420,5 +433,42 @@ class PodcastService {
             .where("podcastid", isEqualTo: podcastId)
             .snapshots();
     return podcastStream;
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> listenAllPodcastRatings() {
+    CollectionReference podcastReference =
+        FirebaseFirestore.instance.collection("podcasts");
+    Stream<QuerySnapshot<Map<String, dynamic>>> podcastStream =
+        FirebaseFirestore.instance
+            .collection("podcasts")
+            .orderBy("podcastChangedTime", descending: true)
+            .limit(1)
+            .snapshots();
+    return podcastStream;
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> listenAllPodcastView() {
+    CollectionReference podcastReference =
+        FirebaseFirestore.instance.collection("podcasts");
+    Stream<QuerySnapshot<Map<String, dynamic>>> podcastStream =
+        FirebaseFirestore.instance
+            .collection("podcasts")
+            .orderBy("podcastChangedTime", descending: true)
+            .limit(1)
+            .snapshots();
+    return podcastStream;
+  }
+
+  Future<List<Podcast>> getAllPodcastsSearch() async {
+    List<Podcast> searchAllPodcast = [];
+    CollectionReference podcastReference =
+        FirebaseFirestore.instance.collection("podcasts");
+    QuerySnapshot querySnapshot = await podcastReference.get();
+    querySnapshot.docs.forEach((searchPodcast) {
+      Podcast podcast =
+          Podcast.fromJson(searchPodcast.data() as Map<String, dynamic>);
+      searchAllPodcast.add(podcast);
+    });
+    return searchAllPodcast;
   }
 }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:podcast_app/models/podcast.dart';
 import 'package:podcast_app/models/user.dart';
 import 'package:podcast_app/services/auth_services.dart';
 import 'package:podcast_app/services/localdb_services.dart';
@@ -27,6 +28,11 @@ class UserController extends GetxController {
   Rx<bool> isProfilePhotoChange = false.obs;
   Rx<File> profilePhotoFile = File("").obs;
   RxList<double> ratingList = <double>[].obs;
+  RxList<Podcast> followPodcastList = <Podcast>[].obs;
+  RxList<User> followUserList = <User>[].obs;
+  RxList<User> followersUserList = <User>[].obs;
+
+  Map<String, String>? followMap;
   @override
   void onInit() async {
     super.onInit();
@@ -65,6 +71,11 @@ class UserController extends GetxController {
     if (userId != null) {
       currentUser.value = await _userService.getcurrentUser(userId);
     }
+  }
+
+  Future<bool> resetPassword(String email) async {
+    bool confirm = await _authService.resetPassword(email);
+    return confirm;
   }
 
   Future<void> getcurrentUser() async {
@@ -174,5 +185,15 @@ class UserController extends GetxController {
 
   void deleteEpisodeDuration(String episodeId) {
     _localDbService.deleteEpisodeDuration(episodeId);
+  }
+
+  Future<void> getFollow(String userId) async {
+    Map<String, dynamic> followMap = await _userService.getFollow(userId);
+    followUserList.value = followMap["userList"];
+    followPodcastList.value = followMap["podcastList"];
+  }
+
+  Future<void> getFollowers(String userId) async {
+    followersUserList.value = (await _userService.getFollowers(userId)) ?? [];
   }
 }

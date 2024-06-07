@@ -7,6 +7,7 @@ import 'package:podcast_app/app_colors.dart';
 import 'package:podcast_app/controllers/podcast_controller.dart';
 import 'package:podcast_app/controllers/user_controller.dart';
 import 'package:podcast_app/models/user.dart';
+import 'package:podcast_app/pages/follow_page.dart';
 import 'package:podcast_app/pages/profile_page.dart';
 import 'package:podcast_app/widgets/my_library.dart';
 import 'package:podcast_app/widgets/my_profile_edit.dart';
@@ -21,7 +22,7 @@ class MyProfilePage extends StatefulWidget {
 class _MyProfilePageState extends State<MyProfilePage> {
   PodcastController _podcastController = Get.find();
   UserController _userController = Get.find();
-  Map<String, String>? followMap;
+  Map<String, String>? followMap = {"follow": "0", "followers": "0"};
   bool isLoading = false;
 
   @override
@@ -123,7 +124,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                   Row(
                                     children: [
                                       Text(
-                                        followMap?["followers"] ?? "0",
+                                        followMap!["followers"] ?? "0",
                                         style: TextStyle(
                                             color: Colors.black,
                                             fontSize: 18.sp,
@@ -132,12 +133,19 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                       SizedBox(
                                         width: 5.w,
                                       ),
-                                      Text(
-                                        "takipçi",
-                                        style: TextStyle(
-                                            color: Colors.grey.shade900,
-                                            fontSize: 15.sp,
-                                            fontWeight: FontWeight.bold),
+                                      InkWell(
+                                        onTap: () async {
+                                          followMap =
+                                              await Get.to(() => FollowPage());
+                                          setState(() {});
+                                        },
+                                        child: Text(
+                                          "takipçi",
+                                          style: TextStyle(
+                                              color: Colors.grey.shade900,
+                                              fontSize: 15.sp,
+                                              fontWeight: FontWeight.bold),
+                                        ),
                                       ),
                                       SizedBox(
                                         width: 10.w,
@@ -152,12 +160,19 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                       SizedBox(
                                         width: 5.w,
                                       ),
-                                      Text(
-                                        "takip ediliyor",
-                                        style: TextStyle(
-                                            color: Colors.grey.shade900,
-                                            fontSize: 15.sp,
-                                            fontWeight: FontWeight.bold),
+                                      InkWell(
+                                        onTap: () async {
+                                          followMap =
+                                              await Get.to(() => FollowPage());
+                                          setState(() {});
+                                        },
+                                        child: Text(
+                                          "takip ediliyor",
+                                          style: TextStyle(
+                                              color: Colors.grey.shade900,
+                                              fontSize: 15.sp,
+                                              fontWeight: FontWeight.bold),
+                                        ),
                                       ),
                                     ],
                                   )

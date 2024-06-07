@@ -231,4 +231,91 @@ class UserService {
     User user = User.fromJson(documentSnapshot.data() as Map<String, dynamic>);
     return user.myRatings;
   }
+
+  Future<Map<String, dynamic>> getFollow(String userId) async {
+    List<String> podcastIdList = [];
+    List<String> userIdList = [];
+    List<Podcast> followPodcastList = [];
+    List<User> followUserList = [];
+
+    CollectionReference userReference =
+        FirebaseFirestore.instance.collection("users");
+
+    CollectionReference podcastReference =
+        FirebaseFirestore.instance.collection("podcasts");
+
+    QuerySnapshot querySnapshot = await userReference
+        .doc(userId)
+        .collection("follow")
+        .where("ispodcast", isEqualTo: true)
+        .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      querySnapshot.docs.forEach((followPodcast) {
+        var data = followPodcast.data() as Map<String, dynamic>;
+        String id = data["followid"];
+        podcastIdList.add(id);
+      });
+    }
+    querySnapshot = await userReference
+        .doc(userId)
+        .collection("follow")
+        .where("ispodcast", isEqualTo: false)
+        .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      querySnapshot.docs.forEach((followUser) {
+        var data = followUser.data() as Map<String, dynamic>;
+        String id = data["followid"];
+        userIdList.add(id);
+      });
+    }
+    if (podcastIdList.isNotEmpty) {
+      querySnapshot = await podcastReference
+          .where("podcastid", whereIn: podcastIdList)
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        querySnapshot.docs.forEach((followPodcast) {
+          print(followPodcast);
+          Podcast podcast =
+              Podcast.fromJson(followPodcast.data() as Map<String, dynamic>);
+          followPodcastList.add(podcast);
+        });
+      }
+    }
+    if (userIdList.isNotEmpty) {
+      querySnapshot =
+          await userReference.where("id", whereIn: userIdList).get();
+      if (querySnapshot.docs.isNotEmpty) {
+        querySnapshot.docs.forEach((followUser) {
+          User user = User.fromJson(followUser.data() as Map<String, dynamic>);
+          followUserList.add(user);
+        });
+      }
+    }
+
+    return {"userList": followUserList, "podcastList": followPodcastList};
+  }
+
+  Future<List<User>?>? getFollowers(String userId) async {
+    List<String> userIdList = [];
+    List<User> userList = [];
+    CollectionReference userReference =
+        FirebaseFirestore.instance.collection("users");
+    QuerySnapshot querySnapshot =
+        await userReference.doc(userId).collection("followers").get();
+    querySnapshot.docs.forEach((user) {
+      var data = user.data() as Map<String, dynamic>;
+      String id = data["followersid"];
+      userIdList.add(id);
+    });
+    if (userIdList.isNotEmpty) {
+      querySnapshot =
+          await userReference.where("id", whereIn: userIdList).get();
+      querySnapshot.docs.forEach((followers) {
+        User user = User.fromJson(followers.data() as Map<String, dynamic>);
+        userList.add(user);
+      });
+    }
+
+    return userList;
+  }
 }

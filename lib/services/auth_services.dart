@@ -31,4 +31,15 @@ class AuthService {
   String? getcurrentUserId() {
     return auth.FirebaseAuth.instance.currentUser?.uid;
   }
+
+  Future<bool> resetPassword(String email) async {
+    try {
+      await auth.FirebaseAuth.instance
+          .sendPasswordResetEmail(email: email.trim());
+      return true;
+    } catch (e) {
+      print(e.toString());
+      return false;
+    }
+  }
 }

@@ -11,6 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:podcast_app/app_colors.dart';
 import 'package:podcast_app/controllers/podcast_controller.dart';
 import 'package:podcast_app/controllers/user_controller.dart';
+import 'package:podcast_app/models/episode.dart';
 import 'package:podcast_app/models/podcast.dart';
 import 'package:podcast_app/models/user.dart';
 import 'package:podcast_app/pages/podcast_listen_page.dart';
@@ -29,19 +30,21 @@ class _PodcastPageState extends State<PodcastPage> {
   bool isFavorite = false;
   bool isFollow = false;
   bool favouriteCheck = false;
-
+  TextEditingController _searchController = TextEditingController();
   double star = 0;
   double previousRating = 0;
   PodcastController _podcastController = Get.find();
   UserController _userController = Get.find();
-
+  List<Episode> searchResult = [];
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _podcastController.podcastRating.value = widget.podcast.rating!;
     _podcastController.listenPodcastRatings(widget.podcast.id!);
-    _podcastController.getPodcastEpisodes(widget.podcast.id!);
+    _podcastController.getPodcastEpisodes(widget.podcast.id!).then((_) {
+      searchResult.addAll(_podcastController.podcastEpisodeList);
+    });
     isFavorite = _userController.currentUser.value.favourite!
         .contains(widget.podcast.id);
     isFollow = _podcastController.followPodcastIdList.value
@@ -64,6 +67,8 @@ class _PodcastPageState extends State<PodcastPage> {
         }
       }
     });
+    _podcastController.setPodcastView(
+        widget.podcast.id!, widget.podcast.viewCount ?? 0);
   }
 
   @override
@@ -87,7 +92,13 @@ class _PodcastPageState extends State<PodcastPage> {
                   .getFollowPodcasts(_userController.currentUser.value.id!);
               await _podcastController.getContinueListeningPodcast(
                   _userController.currentUser.value.id!);
-              Get.back();
+              Get.back(result: {
+                "follow": (_userController.followPodcastList.length +
+                        _userController.followUserList.length)
+                    .toString(),
+                "followers":
+                    (_userController.followersUserList.length).toString()
+              });
             },
             icon: Icon(
               Icons.arrow_back,
@@ -96,6 +107,11 @@ class _PodcastPageState extends State<PodcastPage> {
             )),
         title: Container(
           child: TextField(
+            controller: _searchController,
+            onChanged: (value) {
+              _searchEpisodes(value);
+              print("arama sonucu" + searchResult.length.toString());
+            },
             cursorWidth: 1.w,
             textAlign: TextAlign.center,
             enableSuggestions: false,
@@ -375,6 +391,7 @@ class _PodcastPageState extends State<PodcastPage> {
                               _userController.currentUser.value.id!,
                               widget.podcast.id!,
                               true);
+                          _userController.followPodcastList.add(widget.podcast);
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               backgroundColor: AppColor.primaryColor,
                               showCloseIcon: true,
@@ -386,6 +403,8 @@ class _PodcastPageState extends State<PodcastPage> {
                               _userController.currentUser.value.id!,
                               widget.podcast.id!,
                               true);
+                          _userController.followPodcastList.removeWhere(
+                              (podcast) => podcast.id == widget.podcast.id);
                         }
                       },
                       child: Text(
@@ -508,24 +527,21 @@ class _PodcastPageState extends State<PodcastPage> {
                   width: ScreenUtil().screenWidth,
                   height: 500.h,
                   child: ListView.builder(
-                    itemCount:
-                        _podcastController.continuePodcastEpisodeList.length,
+                    itemCount: _podcastController.podcastEpisodeList.length,
                     itemBuilder: (BuildContext context, int index) {
                       return InkWell(
                         onTap: () {
                           print(_podcastController
-                              .continuePodcastEpisodeList[index].file);
+                              .podcastEpisodeList[index].file);
                           _podcastController.audioPlayer.setUrl(
                               _podcastController
-                                  .continuePodcastEpisodeList[index].file);
+                                  .podcastEpisodeList[index].file);
                           print(_podcastController.audioPlayer.duration);
                           Get.to(() => PodcastListenPage(
                                 episodeId: _podcastController
-                                    .continuePodcastEpisodeList[index]
-                                    .episodeId,
+                                    .podcastEpisodeList[index].episodeId,
                                 podcastId: _podcastController
-                                    .continuePodcastEpisodeList[index]
-                                    .podcastId,
+                                    .podcastEpisodeList[index].podcastId,
                               ));
                         },
                         child: Padding(
@@ -545,8 +561,7 @@ class _PodcastPageState extends State<PodcastPage> {
                                     width: 100.w,
                                     height: 100.h,
                                     _podcastController
-                                        .continuePodcastEpisodeList[index]
-                                        .episodeImage,
+                                        .podcastEpisodeList[index].episodeImage,
                                     fit: BoxFit.cover,
                                     loadingBuilder:
                                         (context, child, loadingProgress) {
@@ -573,7 +588,7 @@ class _PodcastPageState extends State<PodcastPage> {
                                       child: Center(
                                         child: Text(
                                           _podcastController
-                                              .continuePodcastEpisodeList[index]
+                                              .podcastEpisodeList[index]
                                               .podcastName,
                                           style: TextStyle(
                                               color: Colors.white,
@@ -593,8 +608,7 @@ class _PodcastPageState extends State<PodcastPage> {
                                       child: Center(
                                         child: Text(
                                           _podcastController
-                                              .continuePodcastEpisodeList[index]
-                                              .name,
+                                              .podcastEpisodeList[index].name,
                                           style: TextStyle(
                                             color: Colors.grey.shade600,
                                             fontSize: 18.sp,
@@ -620,5 +634,20 @@ class _PodcastPageState extends State<PodcastPage> {
         ),
       ),
     );
+  }
+
+  void _searchEpisodes(String searchTerm) {
+    _podcastController.podcastEpisodeList.clear();
+    if (searchTerm.isEmpty) {
+      _podcastController.podcastEpisodeList.addAll(searchResult);
+    } else {
+      _podcastController.podcastEpisodeList.addAll(searchResult.where(
+          (episode) =>
+              episode.name.toLowerCase().contains(searchTerm.toLowerCase()) ||
+              episode.podcastName
+                  .toLowerCase()
+                  .contains(searchTerm.toLowerCase())));
+    }
+    setState(() {});
   }
 }

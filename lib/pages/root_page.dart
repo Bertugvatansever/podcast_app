@@ -9,6 +9,7 @@ import 'package:podcast_app/pages/home_page.dart';
 import 'package:podcast_app/pages/my_profile_page.dart';
 import 'package:podcast_app/pages/podcast_add_page.dart';
 import 'package:podcast_app/pages/profile_page.dart';
+import 'package:podcast_app/pages/search_page.dart';
 
 class RootPage extends StatefulWidget {
   const RootPage({super.key});
@@ -22,7 +23,7 @@ class _RootPageState extends State<RootPage> {
   PodcastController _podcastController = Get.find();
   List<Widget> screens = [
     HomePage(),
-    Container(),
+    SearchPage(),
     PodcastAdd(),
     Container(),
     MyProfilePage()
