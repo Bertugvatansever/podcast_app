@@ -17,6 +17,8 @@ class AllPodcast extends StatefulWidget {
 // CANLI YILDIZI VE VİEW SAYISINI GÖREMİYORUZ.
 class _AllPodcastState extends State<AllPodcast> {
   ScrollController _scrollController = ScrollController();
+  ScrollController _scrollController2 = ScrollController();
+
   bool categoryPodcast = false;
   bool mostPopular = false;
   bool latest = true;
@@ -57,18 +59,18 @@ class _AllPodcastState extends State<AllPodcast> {
 
   PodcastController _podcastController = Get.find();
   List<Color> containerColors = [
-    AppColor.primaryColor,
+    Colors.black87,
     Color.fromRGBO(41, 93, 225, 0.957),
-    Color.fromRGBO(247, 55, 55, 0.94),
-    Color.fromRGBO(214, 32, 32, 0.957),
-    Color.fromRGBO(125, 226, 66, 0.957),
-    Color.fromRGBO(192, 97, 175, 0.957),
-    Color.fromRGBO(196, 241, 35, 0.957),
-    Color.fromRGBO(71, 148, 176, 0.957),
-    Color.fromRGBO(18, 13, 17, 0.957),
-    Color.fromRGBO(228, 1, 186, 0.957),
+    Color.fromRGBO(191, 241, 6, 0.957),
+    Color.fromRGBO(223, 8, 8, 0.89),
+    AppColor.primaryColor.withOpacity(0.6),
+    Color.fromRGBO(204, 47, 175, 0.957),
+    Color.fromARGB(255, 255, 171, 44),
+    Colors.purple,
     Color.fromRGBO(21, 163, 224, 0.957),
-    Color.fromRGBO(215, 199, 212, 0.957),
+    Color.fromRGBO(187, 3, 153, 0.957),
+    Colors.black87,
+    Colors.brown,
     Color.fromRGBO(82, 247, 28, 0.957),
     Color.fromRGBO(249, 143, 229, 0.957),
   ];
@@ -84,9 +86,21 @@ class _AllPodcastState extends State<AllPodcast> {
     "Seyahat",
     "Müzik",
     "Sinema",
-    "Film",
-    "Kitaplar",
-    "Tarih"
+    "Tarih",
+  ];
+  List<String> categoriesPhotos = [
+    "assets/categories.png",
+    "assets/cpu.png",
+    "assets/soccer-player.png",
+    "assets/cardiogram.png",
+    "assets/academic.png",
+    "assets/dress.png",
+    "assets/chef-hat.png",
+    "assets/color.png",
+    "assets/man.png",
+    "assets/music.png",
+    "assets/clapper.png",
+    "assets/old-map.png",
   ];
   @override
   Widget build(BuildContext context) {
@@ -97,7 +111,7 @@ class _AllPodcastState extends State<AllPodcast> {
           children: [
             Padding(
               padding: EdgeInsets.only(
-                  top: _podcastController.podcastsPage.value ? 0.h : 20.h),
+                  top: _podcastController.podcastsPage.value ? 12.h : 20.h),
             ),
             _podcastController.podcastsPage.value
                 ? SizedBox(
@@ -115,6 +129,7 @@ class _AllPodcastState extends State<AllPodcast> {
                                 children: [
                                   Expanded(
                                     child: ListView.builder(
+                                      padding: EdgeInsets.zero,
                                       controller: _scrollController,
                                       scrollDirection: Axis.vertical,
                                       itemCount:
@@ -125,28 +140,37 @@ class _AllPodcastState extends State<AllPodcast> {
                                           return Column(
                                             children: [
                                               SingleChildScrollView(
+                                                padding: EdgeInsets.only(
+                                                    right: 10.w),
                                                 scrollDirection:
                                                     Axis.horizontal,
                                                 child: Row(
                                                   children: [
-                                                    IconButton(
-                                                        onPressed: () {
-                                                          _podcastController
-                                                              .podcastsPage
-                                                              .value = false;
-                                                          setState(() {
-                                                            latest = true;
-                                                            mostPopular = false;
-                                                            highestRating =
-                                                                false;
-                                                            categoryName = "";
-                                                          });
-                                                        },
-                                                        icon: FaIcon(
-                                                          FontAwesomeIcons
-                                                              .arrowLeftLong,
-                                                          color: AppColor.white,
-                                                        )),
+                                                    SizedBox(
+                                                      width: 40.w,
+                                                      height: 40.h,
+                                                      child: IconButton(
+                                                          onPressed: () {
+                                                            _podcastController
+                                                                .podcastsPage
+                                                                .value = false;
+                                                            setState(() {
+                                                              latest = true;
+                                                              mostPopular =
+                                                                  false;
+                                                              highestRating =
+                                                                  false;
+                                                              categoryName = "";
+                                                            });
+                                                          },
+                                                          icon: FaIcon(
+                                                            FontAwesomeIcons
+                                                                .arrowLeftLong,
+                                                            color:
+                                                                AppColor.white,
+                                                            size: 25,
+                                                          )),
+                                                    ),
                                                     // SizedBox(
                                                     //   width: 15.w,
                                                     // ),
@@ -670,7 +694,7 @@ class _AllPodcastState extends State<AllPodcast> {
                                     () => _podcastController.isLoading.value
                                         ? Container(
                                             width: ScreenUtil().screenWidth,
-                                            height: 45.h,
+                                            height: 70.h,
                                             color: Colors.transparent,
                                             child: Center(
                                               child: LinearProgressIndicator(
@@ -745,7 +769,7 @@ class _AllPodcastState extends State<AllPodcast> {
                     child: Wrap(
                       spacing: 18.w,
                       children: List.generate(
-                        14,
+                        12,
                         (index) => InkWell(
                           onTap: () async {
                             _podcastController.podcastsPage.value = true;
@@ -782,24 +806,44 @@ class _AllPodcastState extends State<AllPodcast> {
                           },
                           child: Container(
                             width: 170.w,
-                            height: 95.h,
+                            height: 130.h,
                             decoration: BoxDecoration(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(6)),
                                 color: containerColors[index]),
-                            child: Center(
-                              child: Text(
-                                categories[index],
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18.sp,
-                                    fontWeight: FontWeight.w500),
-                              ),
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding:
+                                      EdgeInsets.only(top: 20.h, bottom: 10.h),
+                                  child: CircleAvatar(
+                                    backgroundColor: AppColor.white,
+                                    radius: 31.w,
+                                    child: SizedBox(
+                                      width: 45.w,
+                                      height: 45.h,
+                                      child: Image(
+                                          fit: BoxFit.cover,
+                                          image: AssetImage(
+                                            categoriesPhotos[index],
+                                          )),
+                                    ),
+                                  ),
+                                ),
+                                Center(
+                                  child: Text(
+                                    categories[index],
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 19.sp,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                              ],
                             ),
                             margin: EdgeInsets.symmetric(
                               vertical: 10.h,
                             ),
-                            // İstenilen boşluk değerini burada belirtin
                           ),
                         ),
                       ),

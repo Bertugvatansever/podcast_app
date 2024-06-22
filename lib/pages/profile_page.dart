@@ -66,27 +66,31 @@ class _ProfilePageState extends State<ProfilePage> {
                         alignment: Alignment.center,
                         children: [
                           Container(
-                            width: ScreenUtil().screenHeight,
-                            height: 400.h,
-                            child: Image.network(
-                              width: ScreenUtil().screenHeight,
+                              width: ScreenUtil().screenWidth,
                               height: 400.h,
-                              widget.profileUser.photo!,
-                              fit: BoxFit.cover,
-                              loadingBuilder:
-                                  (context, child, loadingProgress) {
-                                if (loadingProgress == null) {
-                                  return child;
-                                } else {
-                                  return Center(
-                                    child: CircularProgressIndicator(
-                                      color: AppColor.primaryColor,
-                                    ),
-                                  );
-                                }
-                              },
-                            ),
-                          ),
+                              child: widget.profileUser.photo!.isNotEmpty
+                                  ? Image.network(
+                                      width: ScreenUtil().screenWidth,
+                                      height: 400.h,
+                                      widget.profileUser.photo!,
+                                      fit: BoxFit.cover,
+                                      loadingBuilder:
+                                          (context, child, loadingProgress) {
+                                        if (loadingProgress == null) {
+                                          return child;
+                                        } else {
+                                          return Center(
+                                            child: CircularProgressIndicator(
+                                              color: AppColor.primaryColor,
+                                            ),
+                                          );
+                                        }
+                                      },
+                                    )
+                                  : Image.asset(
+                                      "assets/profile_photo.jpg",
+                                      fit: BoxFit.cover,
+                                    )),
                           Positioned(
                             bottom: -7.h,
                             child: Text(

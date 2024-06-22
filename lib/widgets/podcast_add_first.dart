@@ -31,12 +31,13 @@ class _PodcastAddFirstWidgetState extends State<PodcastAddFirstWidget>
     'Sağlık',
     'Eğitim',
     'Moda',
-    ""
-        'Gastronomi',
+    'Gastronomi',
     'Sanat',
     'Seyahat',
     'Müzik',
     'Sinema',
+    "Tarih",
+    "Diğer"
   ];
   TextEditingController _podcastNameController = TextEditingController();
   TextEditingController _podcastAboutController = TextEditingController();
@@ -249,17 +250,25 @@ class _PodcastAddFirstWidgetState extends State<PodcastAddFirstWidget>
           _podcastController.selectedCategories[categories[index]] == true,
       selectedColor: AppColor.primaryColor,
       onSelected: (value) {
-        if (_podcastController.selectedCategories.keys
-            .contains(categories[index])) {
-          _podcastController.selectedCategories.remove(categories[index]);
-        } else if (_podcastController.selectedCategories.keys.length <= 2) {
-          _podcastController.selectedCategories[categories[index]] = value;
+        if (categories[index] != "Diğer") {
+          if (_podcastController.selectedCategories.keys
+              .contains(categories[index])) {
+            _podcastController.selectedCategories.remove(categories[index]);
+          } else if (_podcastController.selectedCategories.keys.length <= 2) {
+            if (_podcastController.selectedCategories.keys.contains("Diğer")) {
+              _podcastController.selectedCategories.remove("Diğer");
+            }
+            _podcastController.selectedCategories[categories[index]] = value;
+          }
+        } else {
+          _podcastController.selectedCategories.clear();
+          _podcastController.selectedCategories["Diğer"] = value;
         }
-
         setState(() {
           _podcastController.selectedCategories[categories[index]] == true
               ? chipTextColor = Colors.white
               : chipTextColor = Colors.black;
+          print(_podcastController.selectedCategories.keys.length);
         });
       },
     );

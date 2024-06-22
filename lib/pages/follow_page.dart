@@ -406,91 +406,88 @@ class _FollowPageState extends State<FollowPage> {
                                       _userController.followersUserList.length,
                                   itemBuilder:
                                       (BuildContext context, int index) {
-                                    return InkWell(
-                                      onTap: () async {
-                                        followMap = await Get.to(ProfilePage(
-                                            profileUser: _userController
-                                                .followersUserList[index]));
-                                        setState(() {});
-                                      },
-                                      child: Padding(
-                                        padding: EdgeInsets.only(bottom: 24.h),
-                                        child: Row(
-                                          children: [
-                                            Padding(
-                                              padding:
-                                                  EdgeInsets.only(left: 12.w),
-                                              child: Container(
-                                                width: 65.w,
-                                                height: 65.h,
-                                                decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    color:
-                                                        Colors.grey.shade900),
-                                                child: ClipOval(
-                                                    child: _userController
-                                                            .followersUserList[
-                                                                index]
-                                                            .photo!
-                                                            .isNotEmpty
-                                                        ? Image.network(
-                                                            _userController
-                                                                .followersUserList[
-                                                                    index]
-                                                                .photo!,
-                                                            fit: BoxFit.cover,
-                                                            loadingBuilder:
-                                                                (context, child,
-                                                                    loadingProgress) {
-                                                              if (loadingProgress ==
-                                                                  null) {
-                                                                return child;
-                                                              } else {
-                                                                return Center(
-                                                                    child:
-                                                                        SizedBox(
-                                                                  height: 25.h,
-                                                                  width: 25.w,
+                                    return Padding(
+                                      padding: EdgeInsets.only(bottom: 24.h),
+                                      child: Row(
+                                        children: [
+                                          Padding(
+                                            padding:
+                                                EdgeInsets.only(left: 12.w),
+                                            child: Container(
+                                              width: 65.w,
+                                              height: 65.h,
+                                              decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: Colors.grey.shade900),
+                                              child: ClipOval(
+                                                  child: _userController
+                                                          .followersUserList[
+                                                              index]
+                                                          .photo!
+                                                          .isNotEmpty
+                                                      ? Image.network(
+                                                          _userController
+                                                              .followersUserList[
+                                                                  index]
+                                                              .photo!,
+                                                          fit: BoxFit.cover,
+                                                          loadingBuilder: (context,
+                                                              child,
+                                                              loadingProgress) {
+                                                            if (loadingProgress ==
+                                                                null) {
+                                                              return child;
+                                                            } else {
+                                                              return Center(
                                                                   child:
-                                                                      CircularProgressIndicator(
-                                                                    color: AppColor
-                                                                        .primaryColor,
-                                                                  ),
-                                                                ));
-                                                              }
-                                                            },
-                                                          )
-                                                        : Icon(
-                                                            Icons.person,
-                                                            size: 45,
-                                                            color: Colors.grey,
-                                                          )),
-                                              ),
+                                                                      SizedBox(
+                                                                height: 25.h,
+                                                                width: 25.w,
+                                                                child:
+                                                                    CircularProgressIndicator(
+                                                                  color: AppColor
+                                                                      .primaryColor,
+                                                                ),
+                                                              ));
+                                                            }
+                                                          },
+                                                        )
+                                                      : Icon(
+                                                          Icons.person,
+                                                          size: 45,
+                                                          color: Colors.grey,
+                                                        )),
                                             ),
-                                            SizedBox(
-                                              width: 21.w,
+                                          ),
+                                          SizedBox(
+                                            width: 21.w,
+                                          ),
+                                          Text(
+                                              "${_userController.followersUserList[index].name} ${_userController.followersUserList[index].surName}",
+                                              style: TextStyle(
+                                                  color: AppColor.white,
+                                                  fontSize: 18.sp)),
+                                          SizedBox(
+                                            width: 21.w,
+                                          ),
+                                          AnimatedButton(
+                                            color: AppColor.primaryColor,
+                                            isFixedHeight: false,
+                                            width: 105.w,
+                                            height: 35.h,
+                                            text: "Go Profile",
+                                            buttonTextStyle: TextStyle(
+                                              color: AppColor.white,
                                             ),
-                                            Text(
-                                                "${_userController.followersUserList[index].name} ${_userController.followersUserList[index].surName}",
-                                                style: TextStyle(
-                                                    color: AppColor.white,
-                                                    fontSize: 18.sp)),
-                                            SizedBox(
-                                              width: 21.w,
-                                            ),
-                                            AnimatedButton(
-                                              color: Colors.red,
-                                              isFixedHeight: false,
-                                              width: 105.w,
-                                              height: 35.h,
-                                              text: "UnFollow",
-                                              buttonTextStyle: TextStyle(
-                                                color: AppColor.white,
-                                              ),
-                                              pressEvent: () {},
-                                            ),
-                                          ],
-                                        ),
+                                            pressEvent: () async {
+                                              followMap = await Get.to(ProfilePage(
+                                                  profileUser: _userController
+                                                          .followersUserList[
+                                                      index]));
+                                              setState(() {});
+                                            },
+                                          ),
+                                        ],
                                       ),
                                     );
                                   },
