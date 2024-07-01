@@ -147,9 +147,13 @@ class _LoginPageState extends State<LoginPage> {
             ),
             Center(
                 child: ElevatedButton(
-              onPressed: () {
-                _userController.signIn(
+              onPressed: () async {
+                await _userController.signIn(
                     _emailController.text, _passwordController.text);
+                if (_userController.beforeUserId.value !=
+                    _userController.currentUser.value.id) {
+                  await _userController.checkProfilePhoto();
+                }
               },
               child:
                   Text("Login", style: TextStyle(fontWeight: FontWeight.bold)),

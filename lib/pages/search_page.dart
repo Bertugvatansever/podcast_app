@@ -115,10 +115,10 @@ class _SearchPageState extends State<SearchPage> {
                                 child: Row(
                                   children: [
                                     Padding(
-                                      padding: EdgeInsets.only(left: 25.w),
+                                      padding: EdgeInsets.only(left: 15.w),
                                       child: Container(
-                                        width: 120.w,
-                                        height: 120.h,
+                                        width: 135.w,
+                                        height: 135.h,
                                         decoration: BoxDecoration(
                                             color: Colors.grey.shade900,
                                             borderRadius: BorderRadius.all(
@@ -140,33 +140,50 @@ class _SearchPageState extends State<SearchPage> {
                                     ),
                                     Column(
                                       children: [
-                                        Text(
-                                          _podcastController
-                                              .searchPodcastList[index].name!,
-                                          style: TextStyle(
-                                              color: AppColor.white,
-                                              fontSize: 24.sp,
-                                              fontWeight: FontWeight.bold),
+                                        SizedBox(
+                                          width: 190.w,
+                                          child: Text(
+                                            maxLines: 1,
+                                            _podcastController
+                                                .searchPodcastList[index].name!,
+                                            style: TextStyle(
+                                                overflow: TextOverflow.ellipsis,
+                                                color: AppColor.white,
+                                                fontSize: 24.sp,
+                                                fontWeight: FontWeight.bold),
+                                          ),
                                         ),
                                         SizedBox(
                                           height: 15.h,
                                         ),
-                                        Text(
-                                          "${_podcastController.searchPodcastList[index].user!.name!} ${_podcastController.searchPodcastList[index].user!.surName!}",
-                                          style: TextStyle(
-                                              color:
-                                                  AppColor.textFieldTextcolor,
-                                              fontSize: 22.sp,
-                                              fontWeight: FontWeight.w500),
+                                        SizedBox(
+                                          width: 190.w,
+                                          child: Text(
+                                            maxLines: 1,
+                                            "${_podcastController.searchPodcastList[index].user!.name!} ${_podcastController.searchPodcastList[index].user!.surName!}",
+                                            style: TextStyle(
+                                                overflow: TextOverflow.ellipsis,
+                                                color:
+                                                    AppColor.textFieldTextcolor,
+                                                fontSize: 22.sp,
+                                                fontWeight: FontWeight.w500),
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ],
                                 ),
                               ),
-                              SizedBox(
-                                height: 25.h,
-                              )
+                              index ==
+                                      _podcastController
+                                              .searchPodcastList.length -
+                                          1
+                                  ? SizedBox(
+                                      height: 15.h,
+                                    )
+                                  : SizedBox(
+                                      height: 25.h,
+                                    )
                             ],
                           );
                         },
@@ -186,15 +203,20 @@ class _SearchPageState extends State<SearchPage> {
     }
 
     if (searchPodcastList.isNotEmpty && searchWord.isNotEmpty) {
-      _podcastController.searchPodcastList.addAll(searchPodcastList.where(
-          (podcast) =>
-              podcast.name!.toLowerCase().contains(searchWord.toLowerCase()) ||
-              podcast.user!.name!
-                  .toLowerCase()
-                  .contains(searchWord.toLowerCase()) ||
-              podcast.user!.surName!
-                  .toLowerCase()
-                  .contains(searchWord.toLowerCase())));
+      _podcastController.searchPodcastList
+          .addAll(searchPodcastList.where((podcast) {
+        String podcastOwnerString =
+            "${podcast.user!.name!.toLowerCase().replaceAll(" ", '')}${podcast.user!.surName!.toLowerCase().replaceAll(" ", '')}";
+
+        return podcast.name!
+                .toLowerCase()
+                .replaceAll(" ", '')
+                .contains(searchWord.toLowerCase().replaceAll(" ", '')) ||
+            podcastOwnerString
+                .toLowerCase()
+                .replaceAll(" ", '')
+                .contains(searchWord.toLowerCase().replaceAll(" ", ''));
+      }));
     }
     setState(() {});
   }

@@ -212,19 +212,30 @@ class _AllPodcastState extends State<AllPodcast> {
                                                           SizedBox(
                                                             height: 10.h,
                                                           ),
-                                                          Text(
-                                                            _podcastController
-                                                                .allPodcasts[
-                                                                    index]
-                                                                .name!
-                                                                .toUpperCase(),
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontSize: 20.sp,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
+                                                          SizedBox(
+                                                            width: 345.w,
+                                                            child: Text(
+                                                              maxLines: 1,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              _podcastController
+                                                                  .allPodcasts[
+                                                                      index]
+                                                                  .name!
+                                                                  .toUpperCase(),
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize:
+                                                                      20.sp,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                            ),
                                                           ),
                                                           SizedBox(
                                                             height: 10.h,
@@ -326,6 +337,10 @@ class _AllPodcastState extends State<AllPodcast> {
                                                                           200.w,
                                                                       child:
                                                                           Text(
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                        maxLines:
+                                                                            1,
                                                                         "${_podcastController.allPodcasts[index].user!.name!} ${_podcastController.allPodcasts[index].user!.surName!}",
                                                                         style:
                                                                             TextStyle(
@@ -398,11 +413,20 @@ class _AllPodcastState extends State<AllPodcast> {
                                                                 ),
                                                                 Obx(
                                                                   () => Text(
-                                                                    _podcastController
-                                                                        .allPodcasts[
-                                                                            index]
-                                                                        .viewCount
-                                                                        .toString(),
+                                                                    _podcastController.allPodcasts[index].viewCount.toString().length ==
+                                                                            6
+                                                                        ? _podcastController.allPodcasts[index].viewCount.toString().substring(0,
+                                                                                3) +
+                                                                            "B"
+                                                                        : _podcastController.allPodcasts[index].viewCount.toString().length ==
+                                                                                7
+                                                                            ? _podcastController.allPodcasts[index].viewCount.toString().substring(0, 1) +
+                                                                                "." +
+                                                                                _podcastController.allPodcasts[index].viewCount.toString().substring(1, 2) +
+                                                                                "M"
+                                                                            : _podcastController.allPodcasts[index].viewCount.toString().length == 8
+                                                                                ? _podcastController.allPodcasts[index].viewCount.toString().substring(0, 2) + "." + _podcastController.allPodcasts[index].viewCount.toString().substring(2, 3) + "M"
+                                                                                : _podcastController.allPodcasts[index].viewCount.toString(),
                                                                     style: TextStyle(
                                                                         color: Colors
                                                                             .white,
@@ -423,7 +447,10 @@ class _AllPodcastState extends State<AllPodcast> {
                                                                   _podcastController
                                                                           .allPodcasts[
                                                                               index]
-                                                                          .rating ??
+                                                                          .rating!
+                                                                          .substring(
+                                                                              0,
+                                                                              3) ??
                                                                       "0",
                                                                   style: TextStyle(
                                                                       color: Colors
@@ -603,7 +630,7 @@ class _AllPodcastState extends State<AllPodcast> {
                                                                           crossAxisAlignment:
                                                                               CrossAxisAlignment.start,
                                                                           children: [
-                                                                            i == (_podcastController.allPodcasts[i].category ?? []).length - 1
+                                                                            i == (_podcastController.allPodcasts[index].category ?? []).length - 1
                                                                                 ? Text(
                                                                                     (_podcastController.allPodcasts[index].category ?? [])[i],
                                                                                     style: TextStyle(color: Colors.grey, fontSize: 15.sp),
@@ -665,7 +692,10 @@ class _AllPodcastState extends State<AllPodcast> {
                                                               _podcastController
                                                                       .allPodcasts[
                                                                           index]
-                                                                      .rating ??
+                                                                      .rating!
+                                                                      .substring(
+                                                                          0,
+                                                                          3) ??
                                                                   "0",
                                                               style: TextStyle(
                                                                   color: Colors
@@ -694,11 +724,10 @@ class _AllPodcastState extends State<AllPodcast> {
                                     () => _podcastController.isLoading.value
                                         ? Container(
                                             width: ScreenUtil().screenWidth,
-                                            height: 70.h,
-                                            color: Colors.transparent,
+                                            height: 62.h,
                                             child: Center(
                                               child: LinearProgressIndicator(
-                                                minHeight: 4.h,
+                                                minHeight: 10.h,
                                                 color: AppColor.primaryColor,
                                                 backgroundColor: AppColor.white,
                                               ),

@@ -16,11 +16,19 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
+//TODO Bütün podcastlerde kategori adetini güncelleme işlemini gerçekleştir
+// Bildirim Kısmını ekle
+// Hareketler kısmını ekle
+// Controller ve Service kısmını daha okunaklı yaz
+// Önerilenler kısmını ekle
+// Podcast ekleme ve çıkış yap kısmındaki tasarımı düzelt
+// Giriş yap kısmına AlertDialog ekle
+// Search kısmında uyarı tarzında bir hata var onu çöz
+// Podcast dinlerken bir döngü ekle.
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     Get.put(UserController());

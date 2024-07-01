@@ -23,7 +23,7 @@ class PodcastController extends GetxController {
   PodcastService _podcastService = PodcastService();
   LocalDbService _localDbService = LocalDbService();
   UserService _userService = UserService();
-  int podcastCount = 0;
+  RxMap<String, int> podcastCountMap = <String, int>{}.obs;
   Rx<bool> isRecorded = false.obs;
   Rx<bool> isPaused = false.obs;
   Rx<bool> startPage = true.obs;
@@ -180,7 +180,14 @@ class PodcastController extends GetxController {
         episodeName,
         episodeAbout);
     if (confirm) {
-      podcastCount += 1;
+      int? tempPodcastCount = podcastCountMap["allPodcastCount"];
+      podcastCountMap["allPodcastCount"] = tempPodcastCount ?? 0 + 1;
+      if (selectedCategories.keys.isNotEmpty) {
+        selectedCategories.keys.forEach((key) {
+          int? tempPodcastCount = podcastCountMap[key];
+          podcastCountMap[key] = tempPodcastCount ?? 0 + 1;
+        });
+      }
     }
     return confirm;
   }
@@ -305,10 +312,16 @@ class PodcastController extends GetxController {
   Future<void> getAllPodcasts(String filter, {String? categoryName}) async {
     try {
       await getAllPodcastsCount();
+      int? podcastCountt;
+      if (categoryName != null && categoryName.isNotEmpty) {
+        podcastCountt = podcastCountMap[categoryName];
+      } else {
+        podcastCountt = podcastCountMap["allPodcastsCount"];
+      }
       if (listClear.value) {
         allPodcasts.clear();
       }
-      if ((isLoading.value == false) && (podcastCount > allPodcasts.length)) {
+      if ((isLoading.value == false) && (podcastCountt! > allPodcasts.length)) {
         isLoading.value = true;
 
         Map<String, dynamic>? result = await _podcastService
@@ -377,7 +390,7 @@ class PodcastController extends GetxController {
   }
 
   Future<void> getAllPodcastsCount() async {
-    podcastCount = await _podcastService.getAllPodcastsCount();
+    podcastCountMap.value = await _podcastService.getAllPodcastsCount();
   }
 
   Future<void> setPodcastRating(

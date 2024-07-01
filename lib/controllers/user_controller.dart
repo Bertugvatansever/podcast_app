@@ -26,31 +26,19 @@ class UserController extends GetxController {
   Rx<bool> isProfileEdit = false.obs;
   Rx<bool> isProfilePhoto = false.obs;
   Rx<bool> isProfilePhotoChange = false.obs;
+  Rx<bool> isLoadingLogin = false.obs;
   Rx<File> profilePhotoFile = File("").obs;
   RxList<double> ratingList = <double>[].obs;
   RxList<Podcast> followPodcastList = <Podcast>[].obs;
   RxList<User> followUserList = <User>[].obs;
   RxList<User> followersUserList = <User>[].obs;
-
+  Rx<String> beforeUserId = "".obs;
   Map<String, String>? followMap;
   @override
   void onInit() async {
     super.onInit();
     await getcurrentUser();
-    await getMyProfilePhotoLocalDb();
-    print(profilePhotoFile.value);
-    if (profilePhotoFile.value.path != "") {
-      // Fotoğraf dbde varsa bile cihazda olup olmadığını kontrol ediyorum.
-      File file = File(profilePhotoFile.value.path);
-      bool exists = await file.exists();
-      if (exists) {
-        print("Fotoğraf Mevcut");
-      } else {
-        await checkNewDevice();
-      }
-    } else {
-      await checkNewDevice();
-    }
+    await checkProfilePhoto();
   }
 
   Future<bool> saveRegisterUser(
@@ -81,8 +69,10 @@ class UserController extends GetxController {
   Future<void> getcurrentUser() async {
     String? id = _authService.getcurrentUserId();
     if (id != null) {
+      isLoadingLogin.value = true;
       currentUser.value = await _userService.getcurrentUser(id);
       print(currentUser.value.id);
+      isLoadingLogin.value = false;
     }
   }
 
@@ -122,11 +112,12 @@ class UserController extends GetxController {
     File file = File(path);
 
     await file.writeAsBytes(profilePhotoFile.readAsBytesSync());
-    await _localDbService.saveProfilePhotoLocalDb(path);
+    await _localDbService.saveProfilePhotoLocalDb(path, currentUser.value.id!);
   }
 
   Future<void> getMyProfilePhotoLocalDb() async {
-    String? localProfilePhoto = await _localDbService.getMyProfilePhoto();
+    String? localProfilePhoto =
+        await _localDbService.getMyProfilePhoto(currentUser.value.id!);
     if (localProfilePhoto != null) {
       profilePhotoFile.value = File(localProfilePhoto);
       isProfilePhoto.value = true;
@@ -147,7 +138,8 @@ class UserController extends GetxController {
       String? _path =
           await _userService.getMyProfilePhotoFb(currentUser.value.id!);
       if (_path!.isNotEmpty) {
-        await _localDbService.saveProfilePhotoLocalDb(_path);
+        await _localDbService.saveProfilePhotoLocalDb(
+            _path, currentUser.value.id!);
         isProfilePhoto.value = true;
         profilePhotoFile.value = File(_path);
       } else {
@@ -195,5 +187,22 @@ class UserController extends GetxController {
 
   Future<void> getFollowers(String userId) async {
     followersUserList.value = (await _userService.getFollowers(userId)) ?? [];
+  }
+
+  Future<void> checkProfilePhoto() async {
+    await getMyProfilePhotoLocalDb();
+    print(profilePhotoFile.value);
+    if (profilePhotoFile.value.path != "") {
+      // Fotoğraf dbde varsa bile cihazda olup olmadığını kontrol ediyorum.
+      File file = File(profilePhotoFile.value.path);
+      bool exists = await file.exists();
+      if (exists) {
+        print("Fotoğraf Mevcut");
+      } else {
+        await checkNewDevice();
+      }
+    } else {
+      await checkNewDevice();
+    }
   }
 }

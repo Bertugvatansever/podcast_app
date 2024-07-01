@@ -375,38 +375,36 @@ class _HomePageState extends State<HomePage> {
                                                 ),
                                                 SizedBox(height: 10.h),
                                                 SizedBox(
-                                                  width: 160.w,
-                                                  child: Center(
-                                                    child: Text(
-                                                      _podcastController
-                                                              .continuePodcastList[
-                                                                  index]
-                                                              .podcastName ??
-                                                          "",
-                                                      style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 20.sp,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      maxLines: 2,
-                                                    ),
+                                                  width: 170.w,
+                                                  child: Text(
+                                                    _podcastController
+                                                            .continuePodcastList[
+                                                                index]
+                                                            .podcastName ??
+                                                        "",
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 20.sp,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    maxLines: 1,
+                                                    textAlign: TextAlign.center,
                                                   ),
                                                 ),
                                                 SizedBox(
-                                                  width: 160.w,
-                                                  child: Center(
-                                                    child: Text(
-                                                      '${_podcastController.continuePodcastList[index].podcastOwner} ',
-                                                      style: TextStyle(
-                                                        color: Colors.grey,
-                                                        fontSize: 14.sp,
-                                                      ),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      maxLines: 2,
+                                                  width: 170.w,
+                                                  child: Text(
+                                                    '${_podcastController.continuePodcastList[index].podcastEpisodeName}',
+                                                    style: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 16.sp,
                                                     ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    maxLines: 1,
+                                                    textAlign: TextAlign.center,
                                                   ),
                                                 )
                                               ],
@@ -517,36 +515,34 @@ class _HomePageState extends State<HomePage> {
                                                 ),
                                                 SizedBox(height: 10.h),
                                                 SizedBox(
-                                                  width: 160.w,
-                                                  child: Center(
-                                                    child: Text(
-                                                      _podcastController
-                                                          .favouriteList[index]
-                                                          .name!,
-                                                      style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 20.sp,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      maxLines: 2,
-                                                    ),
+                                                  width: 170.w,
+                                                  child: Text(
+                                                    _podcastController
+                                                        .favouriteList[index]
+                                                        .name!,
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 20.sp,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    maxLines: 1,
+                                                    textAlign: TextAlign.center,
                                                   ),
                                                 ),
                                                 SizedBox(
-                                                  width: 160.w,
-                                                  child: Center(
-                                                    child: Text(
-                                                      "${_podcastController.favouriteList[index].user!.name ?? ""} ${_podcastController.favouriteList[index].user!.surName ?? ""}",
-                                                      style: TextStyle(
-                                                        color: Colors.grey,
-                                                        fontSize: 14.sp,
-                                                      ),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      maxLines: 2,
+                                                  width: 170.w,
+                                                  child: Text(
+                                                    "${_podcastController.favouriteList[index].user!.name ?? ""} ${_podcastController.favouriteList[index].user!.surName ?? ""}",
+                                                    style: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 16.sp,
                                                     ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    maxLines: 1,
+                                                    textAlign: TextAlign.center,
                                                   ),
                                                 )
                                               ],
@@ -658,39 +654,36 @@ class _HomePageState extends State<HomePage> {
                                                 ),
                                                 SizedBox(height: 10.h),
                                                 SizedBox(
-                                                  width: 160.w,
-                                                  child: Center(
-                                                    child: Text(
-                                                      _podcastController
-                                                              .followPodcastList[
-                                                                  index]
-                                                              .name ??
-                                                          "",
-                                                      style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 20.sp,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      maxLines: 2,
-                                                    ),
+                                                  width: 170.w,
+                                                  child: Text(
+                                                    _podcastController
+                                                            .followPodcastList[
+                                                                index]
+                                                            .name ??
+                                                        "",
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 20.sp,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    maxLines: 1,
+                                                    textAlign: TextAlign.center,
                                                   ),
                                                 ),
                                                 SizedBox(
-                                                  width: 160.w,
-                                                  child: Center(
-                                                    child: Text(
-                                                      '${_podcastController.followPodcastList[index].user!.name}'
-                                                      '${_podcastController.followPodcastList[index].user!.surName}',
-                                                      style: TextStyle(
-                                                        color: Colors.grey,
-                                                        fontSize: 14.sp,
-                                                      ),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      maxLines: 2,
+                                                  width: 170.w,
+                                                  child: Text(
+                                                    '${_podcastController.followPodcastList[index].user!.name} ${_podcastController.followPodcastList[index].user!.surName}',
+                                                    style: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 16.sp,
                                                     ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    maxLines: 1,
+                                                    textAlign: TextAlign.center,
                                                   ),
                                                 )
                                               ],

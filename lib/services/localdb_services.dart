@@ -20,17 +20,17 @@ class LocalDbService {
         listeningPodcast.podcastEpisodeId, listeningPodcast.toJson());
   }
 
-  Future<String?> getMyProfilePhoto() async {
+  Future<String?> getMyProfilePhoto(String userId) async {
     Box<String> profilePhotoBox = Hive.box<String>("ProfilePhotos");
-    String id = "userId";
-    String? profilePhoto = profilePhotoBox.get(id);
+
+    String? profilePhoto = profilePhotoBox.get(userId);
     return profilePhoto;
   }
 
-  Future<void> saveProfilePhotoLocalDb(String path) async {
+  Future<void> saveProfilePhotoLocalDb(String path, String userId) async {
     Box<String> profilePhotoBox = Hive.box<String>("ProfilePhotos");
-    String id = "userId";
-    await profilePhotoBox.put(id, path);
+
+    await profilePhotoBox.put(userId, path);
   }
 
   Future<bool> deleteDownload(

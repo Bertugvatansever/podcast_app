@@ -83,6 +83,7 @@ class PodcastService {
         'episodeabout': episodeAbout,
         'podcastid': podcastId
       });
+
       return true;
     } catch (e) {
       print("hata:" + e.toString());
@@ -265,14 +266,37 @@ class PodcastService {
     }
   }
 
-  Future<int> getAllPodcastsCount() async {
+  Future<Map<String, int>> getAllPodcastsCount() async {
+    Map<String, int> countsMap = {};
     CollectionReference countReference =
         FirebaseFirestore.instance.collection("counts");
     QuerySnapshot querySnapshot = await countReference.limit(1).get();
-    int count = 0;
-    count = (querySnapshot.docs.first.data()
+    countsMap["allPodcastsCount"] = (querySnapshot.docs.first.data()
         as Map<String, dynamic>)["allPodcastsCount"];
-    return count;
+    countsMap["Teknoloji"] =
+        (querySnapshot.docs.first.data() as Map<String, dynamic>)["Teknoloji"];
+    countsMap["Spor"] =
+        (querySnapshot.docs.first.data() as Map<String, dynamic>)["Spor"];
+    countsMap["Sağlık"] =
+        (querySnapshot.docs.first.data() as Map<String, dynamic>)["Sağlık"];
+    countsMap["Eğitim"] =
+        (querySnapshot.docs.first.data() as Map<String, dynamic>)["Eğitim"];
+    countsMap["Moda"] =
+        (querySnapshot.docs.first.data() as Map<String, dynamic>)["Moda"];
+    countsMap["Gastronomi"] =
+        (querySnapshot.docs.first.data() as Map<String, dynamic>)["Gastronomi"];
+    countsMap["Sanat"] =
+        (querySnapshot.docs.first.data() as Map<String, dynamic>)["Sanat"];
+    countsMap["Seyahat"] =
+        (querySnapshot.docs.first.data() as Map<String, dynamic>)["Seyahat"];
+    countsMap["Müzik"] =
+        (querySnapshot.docs.first.data() as Map<String, dynamic>)["Müzik"];
+    countsMap["Sinema"] =
+        (querySnapshot.docs.first.data() as Map<String, dynamic>)["Sinema"];
+    countsMap["Tarih"] =
+        (querySnapshot.docs.first.data() as Map<String, dynamic>)["Tarih"];
+
+    return countsMap;
   }
 
   Future<Map<String, dynamic>?> getAllPodcasts(

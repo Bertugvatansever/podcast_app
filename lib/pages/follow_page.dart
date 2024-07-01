@@ -244,30 +244,42 @@ class _FollowPageState extends State<FollowPage> {
                                             Column(
                                               children: [
                                                 podcasts
-                                                    ? Text(
-                                                        _userController
-                                                            .followPodcastList[
-                                                                index]
-                                                            .name!,
-                                                        style: TextStyle(
-                                                            color:
-                                                                AppColor.white,
-                                                            fontSize: 18.sp,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
+                                                    ? SizedBox(
+                                                        width: 165.w,
+                                                        child: Text(
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          maxLines: 1,
+                                                          _userController
+                                                              .followPodcastList[
+                                                                  index]
+                                                              .name!,
+                                                          style: TextStyle(
+                                                              color: AppColor
+                                                                  .white,
+                                                              fontSize: 18.sp,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
                                                       )
                                                     : SizedBox(),
                                                 SizedBox(
                                                   height: 6.h,
                                                 ),
-                                                Text(
-                                                    podcasts
-                                                        ? "${_userController.followPodcastList[index].user!.name} ${_userController.followPodcastList[index].user!.surName}"
-                                                        : "${_userController.followUserList[index].name} ${_userController.followUserList[index].surName}",
-                                                    style: TextStyle(
-                                                        color: AppColor.white,
-                                                        fontSize: 18.sp))
+                                                SizedBox(
+                                                  width: 165.w,
+                                                  child: Text(
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      maxLines: 1,
+                                                      podcasts
+                                                          ? "${_userController.followPodcastList[index].user!.name} ${_userController.followPodcastList[index].user!.surName}"
+                                                          : "${_userController.followUserList[index].name} ${_userController.followUserList[index].surName}",
+                                                      style: TextStyle(
+                                                          color: AppColor.white,
+                                                          fontSize: 18.sp)),
+                                                )
                                               ],
                                             ),
                                             SizedBox(
@@ -462,11 +474,19 @@ class _FollowPageState extends State<FollowPage> {
                                           SizedBox(
                                             width: 21.w,
                                           ),
-                                          Text(
-                                              "${_userController.followersUserList[index].name} ${_userController.followersUserList[index].surName}",
-                                              style: TextStyle(
-                                                  color: AppColor.white,
-                                                  fontSize: 18.sp)),
+                                          SizedBox(
+                                            width: 165.w,
+                                            child: Center(
+                                              child: Text(
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                  "${_userController.followersUserList[index].name} ${_userController.followersUserList[index].surName}",
+                                                  style: TextStyle(
+                                                      color: AppColor.white,
+                                                      fontSize: 18.sp)),
+                                            ),
+                                          ),
                                           SizedBox(
                                             width: 21.w,
                                           ),

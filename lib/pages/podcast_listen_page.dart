@@ -88,7 +88,7 @@ class _PodcastListenPageState extends State<PodcastListenPage>
           });
         }
 
-        if (_podcastController.isDownloadedPodcast.value) {
+        if (_podcastController.isActiveDownloadListen.value) {
           _podcastController.audioPlayer
               .setFilePath(value.uri!,
                   initialPosition:
@@ -282,13 +282,29 @@ class _PodcastListenPageState extends State<PodcastListenPage>
                             width: 300.w,
                             height: 300.h,
                             decoration: BoxDecoration(
-                                image: DecorationImage(
-                                    image: NetworkImage(_listeningPodcast
-                                            ?.podcastEpisodePhoto ??
-                                        ""),
-                                    fit: BoxFit.cover),
+                                color: Colors.grey.shade900,
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(15))),
+                            child: ClipRRect(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(15)),
+                              child: Image.network(
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) {
+                                    return child;
+                                  } else {
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        color: AppColor.primaryColor,
+                                      ),
+                                    );
+                                  }
+                                },
+                                _listeningPodcast?.podcastEpisodePhoto ?? "",
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
                   ),
                   SizedBox(
@@ -298,12 +314,17 @@ class _PodcastListenPageState extends State<PodcastListenPage>
                     alignment: Alignment.centerLeft,
                     child: Padding(
                       padding: EdgeInsets.only(left: 48.w),
-                      child: Text(
-                        _listeningPodcast?.podcastName ?? "",
-                        style: TextStyle(
-                            color: AppColor.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 25.sp),
+                      child: SizedBox(
+                        width: 300.w,
+                        child: Text(
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          _listeningPodcast?.podcastName ?? "",
+                          style: TextStyle(
+                              color: AppColor.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 25.sp),
+                        ),
                       ),
                     ),
                   ),
@@ -311,10 +332,15 @@ class _PodcastListenPageState extends State<PodcastListenPage>
                     alignment: Alignment.centerLeft,
                     child: Padding(
                       padding: EdgeInsets.only(left: 48.w),
-                      child: Text(
-                        _listeningPodcast?.podcastEpisodeName ?? "",
-                        style: TextStyle(
-                            color: Colors.grey.shade500, fontSize: 20.sp),
+                      child: SizedBox(
+                        width: 300.w,
+                        child: Text(
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          _listeningPodcast?.podcastEpisodeName ?? "",
+                          style: TextStyle(
+                              color: Colors.grey.shade500, fontSize: 20.sp),
+                        ),
                       ),
                     ),
                   ),
